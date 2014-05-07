@@ -18,6 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
 
+from ._name import Name
+
 
 class LicenseData(object):
     """
@@ -25,6 +27,8 @@ class LicenseData(object):
     """
 
     TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+    UNKNOWN_NAME = 'CN=Unknown'
 
     @property
     def not_before(self):
@@ -44,12 +48,12 @@ class LicenseData(object):
     @property
     def issuer(self):
         """The license issuer distinguished name"""
-        raise NotImplemented()
+        return self._issuer
 
     @property
     def holder(self):
         """The license holder distinguished name"""
-        raise NotImplemented()
+        return self._holder
 
     @property
     def subject(self):
@@ -88,7 +92,8 @@ class LicenseData(object):
             not_before.
         @param issuer, holder
             The issuer and holder of this certificate. These must be strings
-            parsable by truepy.Name() or instances of truepy.Name.
+            parsable by truepy.Name() or instances of truepy.Name. If not
+            specified, UNKNOWN_NAME will be used.
         @param subject, consumer_type, information
             Free-form string data to associate with the license.
         @param extra
@@ -108,3 +113,6 @@ class LicenseData(object):
             raise ValueError('%s is not before %s',
                 self._not_before, self._not_after)
         self._issued = timestamp(issued or not_before)
+
+        self._issuer = Name(str(issuer or self.UNKNOWN_NAME))
+        self._holder = Name(str(holder or self.UNKNOWN_NAME))

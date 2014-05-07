@@ -18,7 +18,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
-from truepy import LicenseData
+from truepy import LicenseData, Name
 
 
 @test
@@ -73,3 +73,48 @@ def LicenseData_invalid_timestamps():
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             'invalid')
+
+
+@test
+def LicenseData_valid_issuer():
+    """Test LicenseData() for valid issuer"""
+    name = 'CN=name,O=organisation'
+    expected = [('CN', 'name'), ('O', 'organisation')]
+    unknown = Name(LicenseData.UNKNOWN_NAME)
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        issuer = name)
+    assert_eq(expected, license.issuer)
+    assert_eq(unknown, license.holder)
+
+
+@test
+def LicenseData_valid_holder():
+    """Test LicenseData() for valid holder"""
+    name = 'CN=name,O=organisation'
+    expected = [('CN', 'name'), ('O', 'organisation')]
+    unknown = Name(LicenseData.UNKNOWN_NAME)
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        holder = name)
+    assert_eq(unknown, license.issuer)
+    assert_eq(expected, license.holder)
+
+
+@test
+def LicenseData_invalid_names():
+    """Test LicenseData() for invalid names"""
+    with assert_exception(ValueError):
+        license = LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01',
+            issuer = 'invalid')
+    with assert_exception(ValueError):
+        license = LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01',
+            holder = 'invalid')
