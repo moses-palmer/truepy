@@ -31,7 +31,7 @@ def setup(**kwargs):
             os.path.join(
                 os.path.dirname(__file__),
                 'lib'),
-            exclude = ['tests']),
+            exclude = ['tests', 'tests.suites']),
         package_dir = PACKAGE_DIR,
         zip_safe = True,
 
