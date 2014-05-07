@@ -16,5 +16,16 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from ._info import *
-from ._name import Name
+class Name(list):
+    """
+    A class representing a simplified version of an X500 name.
+
+    The string must be on the form "<type>=<value>[,<type>=<value,...].
+
+    No escapes for <type> are supported, and only DQUOTE, PLUS, COMMA, SEMI,
+    LANGLE and RANGLE are supported for <value>. Leading and trailing space is
+    stripped for the value.
+    """
+    def __init__(self, name):
+        # TODO: Implement
+        pass
