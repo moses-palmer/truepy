@@ -229,3 +229,28 @@ def LicenseData_int_information():
         '2014-01-01T00:00:01',
         information = int(expected))
     assert_eq(expected, license.information)
+
+
+@test
+def LicenseData_string_extra():
+    """Test LicenseData() for string extra data"""
+    expected = 'hello world'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        extra = expected)
+    assert_eq(expected, license.extra)
+
+
+@test
+def LicenseData_list_extra():
+    """Test LicenseData() for list extra data"""
+    extra = [1, 2, True, 'end']
+    expected = '[1, 2, true, "end"]'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        extra = extra)
+    assert_eq(expected, license.extra)

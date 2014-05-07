@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import json
+
 from datetime import datetime
 
 from ._name import Name
@@ -73,7 +75,7 @@ class LicenseData(object):
     @property
     def extra(self):
         """The license extra data"""
-        raise NotImplemented()
+        return self._extra
 
     def __init__(self, not_before, not_after, issued = None, issuer = None,
             holder = None, subject = None, consumer_type = None,
@@ -121,3 +123,8 @@ class LicenseData(object):
         self._subject = str(subject or '')
         self._consumer_type = str(consumer_type or '')
         self._information = str(information or '')
+
+        if not isinstance(extra, str):
+            self._extra = json.dumps(extra)
+        else:
+            self._extra = extra
