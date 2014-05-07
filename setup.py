@@ -30,7 +30,8 @@ def setup(**kwargs):
         packages = setuptools.find_packages(
             os.path.join(
                 os.path.dirname(__file__),
-                'lib')),
+                'lib'),
+            exclude = ['tests']),
         package_dir = PACKAGE_DIR,
         zip_safe = True,
 
