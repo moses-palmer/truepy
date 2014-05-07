@@ -23,6 +23,45 @@ def printf(format, *args):
     print('\t' * _indent + format % args)
 
 
+class assert_exception(object):
+    """
+    Allows to assert that a block of code raises an exception.
+
+    @raise AssertionError if no exception is raised or the exception was of a
+        correct type but not validated by the checker
+    """
+    def __init__(self, exception, checker = lambda e: True):
+        """
+        Creates an exception asserter.
+
+        @param exception
+            The exception to require. The type of the raised exception is
+            checked against this value with the is operator. If this expression
+            is not True, the actual exception value is checked with the ==
+            operator. This allows exceptions to override __eq__ and thus this
+            parameter to be of any type.
+        @param checker
+            A function to validate an exception once its type has been verified.
+        """
+        self.exception = exception
+        self.checker = checker
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_value and not (
+                exc_type is self.exception or exc_value == self.exception):
+            return
+        elif not exc_value:
+            raise AssertionError(
+                'The exception %s was not raised' % str(self.exception))
+
+        assert exc_value and self.checker(exc_value), \
+            'The exception checker failed for %s' % str(exc_value)
+        return True
+
+
 class Suite(object):
     """
     The test suites to run when test.run is called.
