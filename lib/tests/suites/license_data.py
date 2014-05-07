@@ -118,3 +118,114 @@ def LicenseData_invalid_names():
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             holder = 'invalid')
+
+
+@test
+def LicenseData_empty_subject():
+    """Test LicenseData() for no subject"""
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01')
+    assert_eq('', license.subject)
+
+
+@test
+def LicenseData_string_subject():
+    """Test LicenseData() for string subject"""
+    expected = 'subject'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        subject = expected)
+    assert_eq(expected, license.subject)
+
+
+@test
+def LicenseData_int_subject():
+    """Test LicenseData() for string subject"""
+    expected = '42'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        subject = int(expected))
+    assert_eq(expected, license.subject)
+
+
+@test
+def LicenseData_empty_consumer_type():
+    """Test LicenseData() for no consumer_type"""
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01')
+    assert_eq('', license.consumer_type)
+
+
+@test
+def LicenseData_string_consumer_type():
+    """Test LicenseData() for string consumer_type"""
+    expected = 'consumer type'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        consumer_type = expected)
+    assert_eq(expected, license.consumer_type)
+
+
+@test
+def LicenseData_int_consumer_type():
+    """Test LicenseData() for string consumer_type"""
+    expected = '42'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        consumer_type = int(expected))
+    assert_eq(expected, license.consumer_type)
+
+
+@test
+def LicenseData_string_information():
+    """Test LicenseData() for string information"""
+    expected = 'information'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        information = expected)
+    assert_eq(expected, license.information)
+
+
+@test
+def LicenseData_empty_information():
+    """Test LicenseData() for no information"""
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01')
+    assert_eq('', license.information)
+
+
+@test
+def LicenseData_string_information():
+    """Test LicenseData() for string information"""
+    expected = 'information'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        information = expected)
+    assert_eq(expected, license.information)
+
+
+@test
+def LicenseData_int_information():
+    """Test LicenseData() for string information"""
+    expected = '42'
+
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        information = int(expected))
+    assert_eq(expected, license.information)

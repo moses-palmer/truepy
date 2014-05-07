@@ -58,17 +58,17 @@ class LicenseData(object):
     @property
     def subject(self):
         """The license subject"""
-        raise NotImplemented()
+        return self._subject
 
     @property
     def consumer_type(self):
         """The type of entity to which this license is issued"""
-        raise NotImplemented()
+        return self._consumer_type
 
     @property
     def information(self):
         """Generic information about this license"""
-        raise NotImplemented()
+        return self._information
 
     @property
     def extra(self):
@@ -95,7 +95,8 @@ class LicenseData(object):
             parsable by truepy.Name() or instances of truepy.Name. If not
             specified, UNKNOWN_NAME will be used.
         @param subject, consumer_type, information
-            Free-form string data to associate with the license.
+            Free-form string data to associate with the license. These values
+            will be stringified.
         @param extra
             Any type of data to store in the license. If this is not a string,
             it will be JSON serialised.
@@ -116,3 +117,7 @@ class LicenseData(object):
 
         self._issuer = Name(str(issuer or self.UNKNOWN_NAME))
         self._holder = Name(str(holder or self.UNKNOWN_NAME))
+
+        self._subject = str(subject or '')
+        self._consumer_type = str(consumer_type or '')
+        self._information = str(information or '')
