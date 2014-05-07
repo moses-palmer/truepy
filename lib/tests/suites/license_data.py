@@ -19,3 +19,57 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from .. import *
 
 from truepy import LicenseData
+
+
+@test
+def LicenseData_valid_validity_window():
+    """Test LicenseData() for valid validity window"""
+    LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01')
+
+
+@test
+def LicenseData_invalid_validity_window():
+    """Test LicenseData() for invalid validity window"""
+    with assert_exception(ValueError):
+        LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:00')
+    with assert_exception(ValueError):
+        LicenseData('2014-01-01T00:00:01', '2014-01-01T00:00:00')
+
+
+@test
+def LicenseData_issued():
+    """Test LicenseData.issued for unspecified issued value"""
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01')
+    assert_eq(license.issued, license.not_before)
+
+
+@test
+def LicenseData_issued():
+    """Test LicenseData.issued for specified issued value"""
+    license = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        '2014-01-01T00:00:01')
+    assert_eq(license.issued, license.not_after)
+
+
+@test
+def LicenseData_invalid_timestamps():
+    """Test LicenseData() for invalid timestamps"""
+    with assert_exception(ValueError):
+        LicenseData(
+            'invalid',
+            '2014-01-01T00:00:01',
+            '2014-01-01T00:00:03')
+    with assert_exception(ValueError):
+        LicenseData(
+            '2014-01-01T00:00:00',
+            'invalid',
+            '2014-01-01T00:00:03')
+    with assert_exception(ValueError):
+        LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01',
+            'invalid')

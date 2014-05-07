@@ -16,25 +16,30 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from datetime import datetime
+
+
 class LicenseData(object):
     """
     A class representing a license with a validity window and meta data.
     """
 
+    TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
     @property
     def not_before(self):
         """The notBefore timestamp of this license"""
-        raise NotImplemented()
+        return self._not_before
 
     @property
     def not_after(self):
         """The notAfter timestamp of this license"""
-        raise NotImplemented()
+        return self._not_after
 
     @property
     def issued(self):
         """The issued timestamp of this license"""
-        raise NotImplemented()
+        return self._issued
 
     @property
     def issuer(self):
@@ -72,10 +77,15 @@ class LicenseData(object):
         """
         Creates a new license data object.
 
+        Any timestamps passed must be either instances of datetime.datetime, or
+        strings parsable by License.TIMESTAMP_FORMAT; the timezone is assumed to
+        be UTC.
+
         @param not_before, not_after
             The validity window. not_before must be strictly before not_after.
         @param issued
-            The timestamp when this license was issued.
+            The timestamp when this license was issued. This defaults to
+            not_before.
         @param issuer, holder
             The issuer and holder of this certificate. These must be strings
             parsable by truepy.Name() or instances of truepy.Name.
@@ -85,5 +95,16 @@ class LicenseData(object):
             Any type of data to store in the license. If this is not a string,
             it will be JSON serialised.
         """
-        # TODO: Implement
-        pass
+        def timestamp(v):
+            if isinstance(v, datetime):
+                return v
+            else:
+                return datetime.strptime(v + ' UTC',
+                    self.TIMESTAMP_FORMAT + ' %Z')
+
+        self._not_before = timestamp(not_before)
+        self._not_after = timestamp(not_after)
+        if self._not_before >= self._not_after:
+            raise ValueError('%s is not before %s',
+                self._not_before, self._not_after)
+        self._issued = timestamp(issued or not_before)
