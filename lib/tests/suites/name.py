@@ -81,3 +81,19 @@ def Name_invalid_string():
         Name('CN=invalid escape sequence#01')
     with assert_exception(ValueError):
         Name('CN=valid escape sequence, no type')
+
+
+@test
+def Name_str0():
+    """Tests that str(Name()) return the input string"""
+    s = 'CN=#3Ctoken#3E,O=organisation'
+    assert_eq(s, str(Name(s)))
+
+
+@test
+def Name_str1():
+    """Tests that str(Name()) return the input string with leading and trailing
+    space stripped for values"""
+    s = 'CN=#3Ctoken#3E , O=organisation '
+    expected = 'CN=#3Ctoken#3E,O=organisation'
+    assert_eq(expected, str(Name(s)))

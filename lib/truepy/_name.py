@@ -83,3 +83,7 @@ class Name(list):
                 for kv in name.split(','))
         except IndexError:
             raise ValueError('invalid X509 name: %s', name)
+
+    def __str__(self):
+        return ','.join('%s=%s' % (k, self.escape(v))
+            for (k, v) in self)
