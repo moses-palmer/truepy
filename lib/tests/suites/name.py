@@ -19,3 +19,23 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from .. import *
 
 from truepy import Name
+
+
+@test
+def Name_escape0():
+    """Tests that Name.escape for string not needing escaping returns the input
+    string"""
+    s = 'hello world'
+    expected = s
+
+    assert_eq(expected, Name.escape(s))
+
+
+@test
+def Name_escape1():
+    """Tests that Name.escape for string needing escaping returns the correct
+    string"""
+    s = 'hello, "world"; insert <token + value>'
+    expected = 'hello#2C #22world#22#3B insert #3Ctoken #2B value#3E'
+
+    assert_eq(expected, Name.escape(s))

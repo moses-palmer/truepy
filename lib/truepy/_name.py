@@ -26,6 +26,20 @@ class Name(list):
     LANGLE and RANGLE are supported for <value>. Leading and trailing space is
     stripped for the value.
     """
+    ESCAPABLES = ('"', '+', ',', ';', '<', '>')
+
+    @classmethod
+    def escape(self, s):
+        """
+        Escapes a string.
+
+        @param s
+            The string to escape.
+        @return an escaped string
+        """
+        return ''.join('#%02X' % ord(c) if c in self.ESCAPABLES else c
+            for c in s)
+
     def __init__(self, name):
         # TODO: Implement
         pass
