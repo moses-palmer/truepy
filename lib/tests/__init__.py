@@ -62,6 +62,23 @@ class assert_exception(object):
         return True
 
 
+def assert_eq(v1, v2):
+    """
+    Asserts that v1 == v2.
+
+    @raise AssertionError if not (v1 == v2)
+    """
+    if isinstance(v1, str) and isinstance(v2, str):
+        # Handle string comparison specially
+        if v1 != v2:
+            import difflib
+            raise AssertionError('Strings differ:\n%s' % '\n'.join(
+                difflib.ndiff(str(v1).splitlines(), str(v2).splitlines())))
+    else:
+        assert v1 == v2, \
+            '%s is not %s' % (v1, v2)
+
+
 class Suite(object):
     """
     The test suites to run when test.run is called.
