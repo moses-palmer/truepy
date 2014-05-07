@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import re
+
+
 class Name(list):
     """
     A class representing a simplified version of an X500 name.
@@ -28,6 +31,8 @@ class Name(list):
     """
     ESCAPABLES = ('"', '+', ',', ';', '<', '>')
 
+    SUB_RE = re.compile(r'\#([0-9a-fA-F]{2})')
+
     @classmethod
     def escape(self, s):
         """
@@ -39,6 +44,27 @@ class Name(list):
         """
         return ''.join('#%02X' % ord(c) if c in self.ESCAPABLES else c
             for c in s)
+
+    @classmethod
+    def unescape(self, s):
+        """
+        Unescapes a string.
+
+        This is the inverse operation to escape.
+
+        @param s
+            The string to unescape.
+        @return an unescaped string
+        @raise ValueError if an invalid escape is encountered; only characters
+            in ESCAPABLES are supported
+        """
+        def replacer(m):
+            char = chr(int(m.group(1), 16))
+            if not char in self.ESCAPABLES:
+                raise ValueError('invalid escape sequence: %s', m.group(0))
+            return char
+
+        return self.SUB_RE.sub(replacer, s)
 
     def __init__(self, name):
         # TODO: Implement

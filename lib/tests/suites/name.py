@@ -39,3 +39,28 @@ def Name_escape1():
     expected = 'hello#2C #22world#22#3B insert #3Ctoken #2B value#3E'
 
     assert_eq(expected, Name.escape(s))
+
+
+@test
+def Name_unescape0():
+    """Tests that Name.unescape for unescaped string returns the input string"""
+    s = 'hello world'
+    expected = s
+
+    assert_eq(expected, Name.unescape(s))
+
+
+@test
+def Name_unescape1():
+    """Tests that Name.unescape for escaped string returns the correct string"""
+    s = 'hello, "world"; insert <token + value>'
+
+    assert_eq(s, Name.unescape(Name.escape(s)))
+
+
+@test
+def Name_unescape2():
+    """Tests that Name.unescape for escaped string with invalid escape seqienmce
+    raises ValueError"""
+    with assert_exception(ValueError):
+        Name.unescape('#01')
