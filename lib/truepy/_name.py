@@ -67,5 +67,19 @@ class Name(list):
         return self.SUB_RE.sub(replacer, s)
 
     def __init__(self, name):
-        # TODO: Implement
-        pass
+        """
+        Creates a new instance of Name from a string.
+
+        @param name
+            The X509 name string from which to create this Name.
+        @raise ValueError if any part contains an invalid escape sequence, or
+            any part does not contain an '='
+        """
+        try:
+            self.extend(
+                (
+                    kv.split('=')[0].strip(),
+                    self.unescape(kv.split('=')[1].strip()))
+                for kv in name.split(','))
+        except IndexError:
+            raise ValueError('invalid X509 name: %s', name)

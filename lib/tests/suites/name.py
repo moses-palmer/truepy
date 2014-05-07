@@ -64,3 +64,20 @@ def Name_unescape2():
     raises ValueError"""
     with assert_exception(ValueError):
         Name.unescape('#01')
+
+
+@test
+def Name_valid_string():
+    """Tests Name() from valid string returns the correct sequence"""
+    assert_eq(
+        [('CN', '<token>'), ('O', 'organisation')],
+        Name('CN=#3Ctoken#3E,O=organisation'))
+
+
+@test
+def Name_invalid_string():
+    """Tests that Name() from invalid string raises ValueError"""
+    with assert_exception(ValueError):
+        Name('CN=invalid escape sequence#01')
+    with assert_exception(ValueError):
+        Name('CN=valid escape sequence, no type')
