@@ -19,6 +19,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from .. import *
 
 
+from datetime import datetime
+
 from truepy import fromstring, tostring
 from truepy._bean import snake_to_camel, camel_to_snake
 from truepy._bean import value_to_xml
@@ -137,6 +139,22 @@ def serialize4():
 
 
 @test
+def serialize5():
+    """Serialises datetime instances"""
+    assert_eq(
+        '<object class="java.util.Date">'
+            '<long>0</long>'
+        '</object>',
+        tostring(serialize(datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z'))))
+
+    assert_eq(
+        '<object class="java.util.Date">'
+            '<long>86400000</long>'
+        '</object>',
+        tostring(serialize(datetime.strptime('1970-01-02 UTC', '%Y-%m-%d %Z'))))
+
+
+@test
 def deserialize0():
     """Deserialises an unknown fragment"""
     with assert_exception(ValueError):
@@ -202,3 +220,12 @@ def deserialize3():
 
     finally:
         del _DESERIALIZER_CLASSES[class_name]
+
+
+@test
+def deserialize4():
+    """Deserialises datetime objects"""
+    expected = datetime.strptime('2014-01-01 UTC', '%Y-%m-%d %Z')
+    assert_eq(
+        expected,
+        deserialize(serialize(expected)))

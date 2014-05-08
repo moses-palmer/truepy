@@ -39,6 +39,15 @@ def str_serializer(value):
     return value_to_xml(value, 'string')
 
 
+@bean_serializer(datetime)
+def datetime_serializer(v):
+    ms_since_epoch = int(
+        (v - datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z')).total_seconds()
+            * 1000)
+    return value_to_xml(
+        str(ms_since_epoch), 'long', 'java.util.Date')
+
+
 @bean_deserializer
 def bool_deserializer(element):
     if element.tag == 'boolean':
@@ -65,6 +74,17 @@ def int_deserializer(element):
 def str_deserializer(element):
     if element.tag == 'string':
         return (element.text or '').strip()
+    else:
+        raise UnknownFragmentException()
+
+
+@bean_deserializer
+def datetime_deserializer(element):
+    if element.tag == 'object' \
+            and element.attrib.get('class', None) == 'java.util.Date':
+        ms_since_epoch = int(element.find('.//long').text)
+        return datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z') + timedelta(
+            milliseconds = ms_since_epoch)
     else:
         raise UnknownFragmentException()
 
