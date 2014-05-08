@@ -15,3 +15,25 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
+
+
+def snake_to_camel(s):
+    """
+    Converts snake_case to camelCase.
+
+    Consecutive underscores in the input will be treated as a single underscore.
+    Trailing underscores will be discarded.
+
+    @param s
+        The snake case string to transform.
+    @return a camel case string
+    """
+    def characters():
+        was_underscore = False
+        for c in s:
+            if c == '_':
+                was_underscore = True
+            else:
+                yield c.upper() if was_underscore else c
+                was_underscore = False
+    return ''.join(characters())

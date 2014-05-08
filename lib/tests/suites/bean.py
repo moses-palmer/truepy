@@ -17,3 +17,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .. import *
+
+from truepy._bean import snake_to_camel
+
+
+@test
+def snake_to_camel0():
+    """Tests that snake_to_camel works as expected"""
+    assert_eq('camelCase', snake_to_camel('camel_case'))
+    assert_eq('camelCase', snake_to_camel('camel__case'))
+    assert_eq('camelCase', snake_to_camel('camel_case_'))
+    assert_eq('CamelCase', snake_to_camel('_camel_case'))
