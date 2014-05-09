@@ -95,3 +95,41 @@ def serialize2():
 
     with assert_exception(ValueError):
         serialize(has_unknown())
+
+
+@test
+def serialize3():
+    """Serialises a string"""
+    assert_eq(
+        '<string>hello world</string>',
+        tostring(serialize('hello world')))
+
+
+@test
+def serialize4():
+    """Serialises an object"""
+    class test(object):
+        bean_class = 'test.class'
+        @property
+        def z(self):
+            return True
+        @property
+        def last(self):
+            return 42
+        @property
+        def first(self):
+            return 'hello world'
+
+    assert_eq(
+        '<object class="test.class">'
+            '<void property="first">'
+                '<string>hello world</string>'
+            '</void>'
+            '<void property="last">'
+                '<int>42</int>'
+            '</void>'
+            '<void property="z">'
+                '<boolean>true</boolean>'
+            '</void>'
+        '</object>',
+        tostring(serialize(test())))

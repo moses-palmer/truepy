@@ -171,3 +171,6 @@ def serialize(value):
         property_container.append(property_value)
 
     return xml
+
+
+from  ._bean_serializers import *
