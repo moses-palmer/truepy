@@ -19,7 +19,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from .. import *
 
 
+from truepy import tostring
 from truepy._bean import snake_to_camel, camel_to_snake
+from truepy._bean import value_to_xml
 
 
 @test
@@ -37,3 +39,21 @@ def camel_to_snake0():
     assert_eq('snake_case', camel_to_snake('snakeCase'))
     assert_eq('_snake_case', camel_to_snake('SnakeCase'))
     assert_eq('_s_n_a_k_e', camel_to_snake('SNAKE'))
+
+
+@test
+def value_to_xml0():
+    """Tests value_to_xml for no class name"""
+    assert_eq(
+        '<test>value</test>',
+        tostring(value_to_xml('value', 'test')))
+
+
+@test
+def value_to_xml1():
+    """Tests value_to_xml for a class name"""
+    assert_eq(
+        '<object class="test">'
+            '<tag>value</tag>'
+        '</object>',
+        tostring(value_to_xml('value', 'tag', 'test')))

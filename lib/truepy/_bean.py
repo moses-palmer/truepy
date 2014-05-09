@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from xml.etree import ElementTree
+
 
 def snake_to_camel(s):
     """
@@ -53,3 +55,31 @@ def camel_to_snake(s):
                 yield '_'
             yield c.lower()
     return ''.join(characters())
+
+
+def value_to_xml(value, tag_name, class_name = None):
+    """
+    Serialises a value as the XML
+        <object class="(class_name)">
+            <(tag_name)>(value)</(tag_name)>
+        </object>
+    if class_name is given, otherwise as
+        <(tag_name)>(value)</(tag_name)>
+
+    @param value
+        The value as a string.
+    @param tag_name
+        The tag name to use for the value.
+    @param class_name
+        The Java class name to use.
+    @return an instance of xml.etree.ElementTree.Element
+    """
+    if class_name is None:
+        o = ElementTree.Element(tag_name)
+        o.text = value
+    else:
+        o = ElementTree.Element('object', attrib = {
+            'class': class_name})
+        o.append(value_to_xml(value, tag_name))
+
+    return o
