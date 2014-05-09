@@ -23,6 +23,7 @@ from truepy import fromstring, tostring
 from truepy._bean import snake_to_camel, camel_to_snake
 from truepy._bean import value_to_xml
 from truepy._bean import deserialize, serialize
+from truepy._bean_serializers import _DESERIALIZER_CLASSES, bean_class
 
 
 @test
@@ -173,3 +174,31 @@ def deserialize2():
         'hello world',
         deserialize(fromstring(
             '<string>hello world</string>')))
+
+
+@test
+def deserialize3():
+    """Deserialises an object using constructor"""
+    global _DESERIALIZER_CLASSES
+    class_name = 'test.class'
+
+    try:
+        @bean_class(class_name)
+        class test(object):
+            @property
+            def a(self):
+                return self._a
+            def __init__(self, a):
+                self._a = a
+
+        o = deserialize(fromstring(
+            '<object class="test.class">'
+                '<void property="a">'
+                    '<string>hello world</string>'
+                '</void>'
+            '</object>'))
+        assert_eq('hello world', o.a)
+        assert_eq(test, o.__class__)
+
+    finally:
+        del _DESERIALIZER_CLASSES[class_name]
