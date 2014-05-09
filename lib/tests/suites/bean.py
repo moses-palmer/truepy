@@ -22,7 +22,7 @@ from .. import *
 from truepy import fromstring, tostring
 from truepy._bean import snake_to_camel, camel_to_snake
 from truepy._bean import value_to_xml
-from truepy._bean import serialize
+from truepy._bean import deserialize, serialize
 
 
 @test
@@ -133,3 +133,15 @@ def serialize4():
             '</void>'
         '</object>',
         tostring(serialize(test())))
+
+
+@test
+def deserialize0():
+    """Deserialises an unknown fragment"""
+    with assert_exception(ValueError):
+        deserialize(fromstring(
+            '<object class="unknown">'
+                '<void property="a">'
+                    '<int>42</int>'
+                '</void>'
+            '</object>'))

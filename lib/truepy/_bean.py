@@ -18,6 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from xml.etree import ElementTree
 
+from . import tostring
+
 
 def snake_to_camel(s):
     """
@@ -171,6 +173,48 @@ def serialize(value):
         property_container.append(property_value)
 
     return xml
+
+
+class UnknownFragmentException(Exception):
+    """
+    The exception raised by a deserialiser when it cannot handle an XML
+    fragment.
+    """
+    pass
+
+_DESERIALIZERS = []
+
+def bean_deserializer(f):
+    """
+    Marks a function as a deserialiser.
+
+    The function is passed an xml.etree.ElementTree.Element. If the function is
+    not capable of deserialising the XML, it must raise
+    UnknownFragmentException.
+    """
+    _DESERIALIZERS.append(f)
+    return f
+
+
+def deserialize(element):
+    """
+    Deserialises a value.
+
+    The value type must have a serialiser registered, or be an object with the
+    attribute 'bean_class' whose properties can be serialised with serialize.
+
+    @param element
+        The XML fragment to serialise.
+    @return a value
+    @raise ValueError if the value cannot be serialised
+    """
+    for deserializer in _DESERIALIZERS:
+        try:
+            return deserializer(element)
+        except UnknownFragmentException:
+            pass
+
+    raise ValueError('unknown XML fragment: %s', ElementTree.tostring(element))
 
 
 from  ._bean_serializers import *
