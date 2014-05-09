@@ -18,7 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
-from truepy._bean import snake_to_camel
+
+from truepy._bean import snake_to_camel, camel_to_snake
 
 
 @test
@@ -28,3 +29,11 @@ def snake_to_camel0():
     assert_eq('camelCase', snake_to_camel('camel__case'))
     assert_eq('camelCase', snake_to_camel('camel_case_'))
     assert_eq('CamelCase', snake_to_camel('_camel_case'))
+
+
+@test
+def camel_to_snake0():
+    """Tests that camel_to_snake works as expected"""
+    assert_eq('snake_case', camel_to_snake('snakeCase'))
+    assert_eq('_snake_case', camel_to_snake('SnakeCase'))
+    assert_eq('_s_n_a_k_e', camel_to_snake('SNAKE'))

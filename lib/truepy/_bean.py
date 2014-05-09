@@ -37,3 +37,19 @@ def snake_to_camel(s):
                 yield c.upper() if was_underscore else c
                 was_underscore = False
     return ''.join(characters())
+
+
+def camel_to_snake(s):
+    """
+    Converts camelCase to snake_case.
+
+    @param s
+        The camel case string to transform.
+    @return a snake case string
+    """
+    def characters():
+        for c in s:
+            if c.isupper():
+                yield '_'
+            yield c.lower()
+    return ''.join(characters())
