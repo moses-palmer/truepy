@@ -145,3 +145,31 @@ def deserialize0():
                     '<int>42</int>'
                 '</void>'
             '</object>'))
+
+
+@test
+def deserialize1():
+    """Deserialises invalid fragments"""
+    with assert_exception(ValueError):
+        deserialize(fromstring(
+            '<boolean>invalid</boolean>'))
+    with assert_exception(ValueError):
+        deserialize(fromstring(
+            '<int>invalid</int>'))
+
+
+@test
+def deserialize2():
+    """Deserialises known fragments"""
+    assert_eq(
+        True,
+        deserialize(fromstring(
+            '<boolean>true</boolean>')))
+    assert_eq(
+        42,
+        deserialize(fromstring(
+            '<int>42</int>')))
+    assert_eq(
+        'hello world',
+        deserialize(fromstring(
+            '<string>hello world</string>')))
