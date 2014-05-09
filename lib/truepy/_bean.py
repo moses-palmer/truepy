@@ -83,3 +83,91 @@ def value_to_xml(value, tag_name, class_name = None):
         o.append(value_to_xml(value, tag_name))
 
     return o
+
+
+_SERIALIZERS = {}
+
+def bean_serializer(*value_types):
+    """
+    Marks a function as a serialiser for a specific type.
+
+    The function must return an xml.etree.ElementTree.Element. It is passed a
+    single value.
+
+    @param value_types
+        The types that this serialiser is capable of serialising.
+    """
+    def inner(f):
+        for value_type in value_types:
+            _SERIALIZERS[value_type] = f
+        return f
+
+    return inner
+
+
+def _serialize_object(value):
+    """
+    Serialises an object.
+
+    The object must have the attribute 'bean_class'.
+
+    All properties of the object are wrapped in <void property="(name)"></void>,
+    and must thus themselves be serialisable.
+    """
+    try:
+        class_name = getattr(value, 'bean_class')
+    except AttributeError:
+        raise ValueError('unknown Java class')
+
+    property_names = sorted(k
+        for k, v in o.__class__.__dict__.items()
+        if isinstance(getattr(o.__class__, k), property))
+
+    java_wrapper = ElementTree.Element('java', attrib = {
+        'version': '1.0',
+        'class': 'java.beans.XMLDecoder'})
+
+    container = ElementTree.SubElement(java_wrapper, 'object', attrib = {
+        'class': class_name})
+    for property_name in property_names:
+        container.append(
+            serialize(property_name, getattr(o, property_name)))
+
+    return java_wrapper
+
+
+def serialize(value):
+    """
+    Serialises a value.
+
+    The value type must have a serialiser registered, or be an object with the
+    attribute 'bean_class' whose properties can be serialised with serialize.
+
+    @param value
+        The value to serialise.
+    @return and xml.etree.ElementTree.Element describing the element
+    @raise ValueError if the value cannot be serialised
+    """
+    try:
+        return _SERIALIZERS[type(value)](value)
+    except KeyError:
+        pass
+
+    try:
+        class_name = getattr(value, 'bean_class')
+    except AttributeError:
+        raise ValueError('unknown Java class for %s', type(value))
+
+    property_names = sorted(k
+        for k, v in value.__class__.__dict__.items()
+        if isinstance(getattr(value.__class__, k), property))
+
+    xml = ElementTree.Element('object', attrib = {
+        'class': class_name})
+    for property_name in property_names:
+        property_value = serialize(getattr(value, property_name))
+        property_container = ElementTree.SubElement(xml, 'void', attrib = {
+            'property': snake_to_camel(property_name)})
+        property_container.append(property_value)
+
+    return xml

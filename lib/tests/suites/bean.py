@@ -19,9 +19,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from .. import *
 
 
-from truepy import tostring
+from truepy import fromstring, tostring
 from truepy._bean import snake_to_camel, camel_to_snake
 from truepy._bean import value_to_xml
+from truepy._bean import serialize
 
 
 @test
@@ -57,3 +58,40 @@ def value_to_xml1():
             '<tag>value</tag>'
         '</object>',
         tostring(value_to_xml('value', 'tag', 'test')))
+
+
+@test
+def serialize0():
+    """Serialises an unknown value"""
+    class unknown(object):
+        pass
+
+    with assert_exception(ValueError):
+        serialize(unknown())
+
+
+@test
+def serialize1():
+    """Serialises an empty class"""
+    class empty(object):
+        bean_class = 'test.class'
+
+    assert_eq(
+        '<object class="test.class" />',
+        tostring(serialize(empty())))
+
+
+@test
+def serialize2():
+    """Serialises a class with an unknown property"""
+    class unknown(object):
+        pass
+
+    class has_unknown(object):
+        bean_class = 'test.class'
+        @property
+        def a(self):
+            return unknown()
+
+    with assert_exception(ValueError):
+        serialize(has_unknown())
