@@ -38,3 +38,32 @@ def License_encoded1():
         to_document(serialize(
             LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01'))),
         '<signature>')
+
+
+@test
+def License_signature_algorithm0():
+    """Tests License() for invalid signature_algorithm"""
+    with assert_exception(ValueError):
+        License(to_document(serialize(
+            LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01'))),
+        '<signature>',
+        signature_algorithm = 'invalid')
+
+
+@test
+def License_signature_algorithm1():
+    """Tests License() for valid, non-default signature_algorithm"""
+    License(to_document(serialize(
+        LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01'))),
+    '<signature>',
+    signature_algorithm = 'HELLOwithWORLD')
+
+
+@test
+def License_signature_encoding0():
+    """Tests License() for invalid signature_encoding"""
+    with assert_exception(ValueError):
+        License(to_document(serialize(
+            LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01'))),
+        '<signature>',
+        signature_encoding = 'UTF-8/Base64')

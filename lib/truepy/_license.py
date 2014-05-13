@@ -35,17 +35,22 @@ class License(object):
     @property
     def signature(self):
         """The signature of the license data as base 64 encoded data"""
-        raise NotImplementedError()
+        return self._signature
 
     @property
     def signature_algorithm(self):
         """The signature algorithm used to sign"""
-        raise NotImplementedError()
+        return '%swith%s' % (self._signature_digest, self._signature_encryption)
 
     @property
     def signature_encoding(self):
         """The encoding of the signature; this is always US-ASCII/Base64"""
-        raise NotImplementedError()
+        return 'US-ASCII/Base64'
+
+    @signature_encoding.setter
+    def signature_encoding(self, value):
+        if value != self.SIGNATURE_ENCODING:
+            raise ValueError('invalid signature encoding: %s', value)
 
     def __init__(self, encoded, signature, signature_algorithm = 'SHA1withRSA',
             signature_encoding = SIGNATURE_ENCODING):
@@ -57,13 +62,25 @@ class License(object):
         @param signature
             The license signature.
         @param signature_algorithm
-            The algorithm used to sign the license.
+            The algorithm used to sign the license. This must be on the form
+            <digest>with<encryption>.
         @param signature_encoding
             The encoding of the signature. This must be US-ASCII/Base64.
-        @raise ValueError if encoded is not an encoded LicenseData object
+        @raise ValueError if encoded is not an encoded LicenseData object, if
+            signature_algorithm is invalid or if signature_encoding is not
+            US-ASCII/Base64
         """
         license_data_xml = fromstring(encoded)
         if license_data_xml.tag != 'java' or len(license_data_xml) != 1:
             raise ValueError('invalid encoded license data: %s', encoded)
         self._license_data = deserialize(license_data_xml[0])
         self._encoded = encoded
+
+        self._signature = signature
+        try:
+            self._signature_digest, self._signature_encryption = \
+                signature_algorithm.split('with')
+        except ValueError:
+            raise ValueError('invalid signature algorithm: %s',
+                signature_algorithm)
+        self.signature_encoding = signature_encoding
