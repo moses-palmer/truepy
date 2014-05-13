@@ -18,4 +18,23 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
-from truepy import License
+from truepy import LicenseData, License
+from truepy._bean import serialize, to_document
+
+
+@test
+def License_encoded0():
+    """Tests that License() with invalid encoded data raises ValueError"""
+    with assert_exception(ValueError):
+        License(
+            '<invalid/>',
+            '<signature>')
+
+
+@test
+def License_encoded1():
+    """Tests that License() with valid encoded data has correct encoded value"""
+    License(
+        to_document(serialize(
+            LicenseData('2014-01-01T00:00:00', '2014-01-01T00:00:01'))),
+        '<signature>')

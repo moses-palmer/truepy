@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from . import fromstring
+from ._bean import deserialize
+
+
 class License(object):
     """
     A class representing a signed license.
@@ -26,7 +30,7 @@ class License(object):
     @property
     def encoded(self):
         """The encoded license data"""
-        raise NotImplementedError()
+        return self._encoded
 
     @property
     def signature(self):
@@ -56,6 +60,10 @@ class License(object):
             The algorithm used to sign the license.
         @param signature_encoding
             The encoding of the signature. This must be US-ASCII/Base64.
+        @raise ValueError if encoded is not an encoded LicenseData object
         """
-        # TODO: Implement
-        pass
+        license_data_xml = fromstring(encoded)
+        if license_data_xml.tag != 'java' or len(license_data_xml) != 1:
+            raise ValueError('invalid encoded license data: %s', encoded)
+        self._license_data = deserialize(license_data_xml[0])
+        self._encoded = encoded
