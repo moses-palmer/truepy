@@ -22,8 +22,10 @@ import sys
 
 from . import LicenseData, fromstring
 from ._bean import deserialize, serialize, to_document
+from ._bean_serializers import bean_class
 
 
+@bean_class('de.schlichtherle.xml.GenericCertificate')
 class License(object):
     """
     A class representing a signed license.
