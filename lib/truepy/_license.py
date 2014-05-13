@@ -16,8 +16,12 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from . import fromstring
-from ._bean import deserialize
+import base64
+import OpenSSL
+import sys
+
+from . import LicenseData, fromstring
+from ._bean import deserialize, serialize, to_document
 
 
 class License(object):
@@ -84,3 +88,58 @@ class License(object):
             raise ValueError('invalid signature algorithm: %s',
                 signature_algorithm)
         self.signature_encoding = signature_encoding
+
+    @classmethod
+    def issue(self, certificate, key, digest = 'SHA1', **license_data):
+        """
+        Issues a new License.
+
+        @param certificate
+            The issuer certificate.
+        @param key
+            The private key of the certificate.
+        @param digest
+            The digest algorithm to use.
+        @param license_data
+            Parameter to pass on to truepy.LicenseData. Do not pass issuer; this
+            value will be read from the certificate subject. You may also
+            specify the single value license_data; this must in that case be an
+            instance of truepy.LicenseData
+        @raise ValueError if license data cannot be created from the keyword
+            arguments or if the issuer name is passed
+        """
+        if 'license_data' in license_data:
+            if len(license_data) != 1:
+                raise ValueError('invalid keyword arguments')
+            license_data = license_data['license_data']
+        else:
+            if 'issuer' in license_data:
+                raise ValueError('issuer must not be passed')
+            license_data['issuer'] = ','.join('='.join(
+                    str(part, 'ascii') if sys.version_info.major > 2
+                    else part for part in parts)
+                for parts in certificate.get_subject().get_components())
+            try:
+                license_data = LicenseData(**license_data)
+            except TypeError:
+                raise ValueError('invalid keyword arguments')
+        if not isinstance(license_data, LicenseData):
+            raise ValueError('invalid license_data: %s', license_data)
+
+        encoded = to_document(serialize(license_data))
+
+        if key.type() == OpenSSL.crypto.TYPE_RSA:
+            encryption = 'RSA'
+        elif key.type() == OpenSSL.crypto.TYPE_DSA:
+            encryption = 'DSA'
+        else:
+            raise ValueError('unknown key type')
+
+        signature = base64.b64encode(OpenSSL.crypto.sign(
+            key,
+            encoded.encode('ascii'),
+            digest)).decode('ascii')
+
+        signature_algorithm = 'with'.join((digest, encryption))
+
+        return License(encoded, signature, signature_algorithm)
