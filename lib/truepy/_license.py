@@ -31,6 +31,10 @@ class License(object):
 
     SIGNATURE_ENCODING = 'US-ASCII/Base64'
 
+    class InvalidSignatureException(Exception):
+        """Raised when the signature does not match"""
+        pass
+
     @property
     def encoded(self):
         """The encoded license data"""
@@ -143,3 +147,21 @@ class License(object):
         signature_algorithm = 'with'.join((digest, encryption))
 
         return License(encoded, signature, signature_algorithm)
+
+    def verify(self, certificate):
+        """
+        Verifies the signature of this certificate against a certificate.
+
+        @param certificate
+            The issuer certificate.
+        @raise truepy.License.InvalidSignatureException if the signature does
+            not match
+        """
+        try:
+            OpenSSL.crypto.verify(
+                certificate,
+                base64.b64decode(self.signature),
+                self.encoded.encode('ascii'),
+                self._signature_digest)
+        except Exception as e:
+            raise self.InvalidSignatureException(e)

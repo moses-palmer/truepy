@@ -50,6 +50,32 @@ def certificate():
     return OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,
         CERTIFICATE)
 
+OTHER_CERTIFICATE = r'''-----BEGIN CERTIFICATE-----
+MIIDpTCCAo2gAwIBAgIJAMkGafbVKrk8MA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
+BAYTAlhYMRMwEQYDVQQIDApTb21lLVN0YXRlMRQwEgYDVQQHDAtNYWxpY2V2aWxs
+ZTEhMB8GA1UECgwYMW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMQwwCgYDVQQDDANF
+dmUwHhcNMTQwNTEzMDgzMjUxWhcNMTcwMjA2MDgzMjUxWjBpMQswCQYDVQQGEwJY
+WDETMBEGA1UECAwKU29tZS1TdGF0ZTEUMBIGA1UEBwwLTWFsaWNldmlsbGUxITAf
+BgNVBAoMGDFudGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEMMAoGA1UEAwwDRXZlMIIB
+IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5vNPMq01miQ7NUimwpyobV5J
+MRjCw+A3OPn0lPenfWzveNjV2voYal7W6S25NT9fz9f/lKAQmCJZw8BU+Jztvrmp
+z4Fl6NgnjwC6SMKyATgobYCYnrMmVcX7y+PlMt27m11A7YBlAbwPpU8ivYHCQxIK
+mf0uM6g1g94Apy115wzhDUppsIkLVR4MYTJ8wX9yiD6Luj/ghKO8MMaMJtIQ7tO9
+FtozkLEff1VRcW+llWP/Owe9TjJwGueJxrtb+WhO3Rz24OGX/fjxXJDSAT1PqWWG
+wRuGkMffx8zhf9YvF1ubdDHJB3c/Vhqf3EKrWsdbO9CKIbJZp/QlMxcubqS35wID
+AQABo1AwTjAdBgNVHQ4EFgQUffWcdigWLmCm5KvgTlMAE67enGowHwYDVR0jBBgw
+FoAUffWcdigWLmCm5KvgTlMAE67enGowDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0B
+AQsFAAOCAQEAR7/UUFuu6qlpkyVFCNFynKxW/nadJIZy5o+irRu/m2BrWKgDvtyl
+duIzBMzN/e0c22KLdBOzyeTIjDhHKC2b4C+zSRgkKJZkGYLu4GuxWVv6eU6nVPEY
+jLO1/LS1Ch2fnNnsegC4vXiQzT/4QaRhdXJSmlFO13EK1FFXo2+3btbNAtQ82AWr
+1OhdcbhCP5xHL0+paYyF5t4nsY6usCM6bJWUqf8lI7k4o3q11TrsTq6rwhA8P/9/
++E6wUB3If+QzAyCxbEESiTt1+4OiEDK78g6JYewBOusDObiMCE14TSdMgJzJw+TW
+BSKMnCK+8l9gBOZpxrPfGQMUxyvdUpZjbg==
+-----END CERTIFICATE-----'''
+def other_certificate():
+    return OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,
+        OTHER_CERTIFICATE)
+
 KEY = r'''-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIlhgdHbcx56QCAggA
 MBQGCCqGSIb3DQMHBAgl6ynGQoUxNQSCBMh24HR44SbY5y5U8f1NhBntEhM4XneA
@@ -183,3 +209,23 @@ def License_issue_valid():
             license_data = LicenseData(
                 '2014-01-01T00:00:00',
                 '2014-01-01T00:00:01')).signature)
+
+
+@test
+def License_verify_invalid():
+    """Tests that License.verify raises exception for invalid signatures"""
+    with assert_exception(License.InvalidSignatureException):
+        License.issue(certificate(), key(),
+            license_data = LicenseData(
+                '2014-01-01T00:00:00',
+                '2014-01-01T00:00:01')).verify(other_certificate())
+
+
+@test
+def License_verify_valid():
+    """Tests that License.verify does not raise exception for valid
+    certificate"""
+    License.issue(certificate(), key(),
+        license_data = LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01')).verify(certificate())
