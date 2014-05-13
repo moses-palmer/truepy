@@ -20,6 +20,7 @@ def setup(**kwargs):
         long_description = README + '\n\n' + CHANGES,
 
         install_requires = [
+            'pycrypto >=2.6.1',
             'pyOpenSSL >=0.14'],
         setup_requires = [],
 
