@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import sys
 import types
 
 from datetime import datetime, timedelta
@@ -37,6 +38,12 @@ def str_serializer(value):
 @bean_serializer(str)
 def str_serializer(value):
     return value_to_xml(value, 'string')
+
+
+if sys.version_info.major < 3:
+    @bean_serializer(unicode)
+    def str_serializer(value):
+        return value_to_xml(value, 'string')
 
 
 @bean_serializer(datetime)

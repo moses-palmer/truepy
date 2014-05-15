@@ -29,4 +29,5 @@ else:
 
 from ._info import *
 from ._license_data import LicenseData
+from ._license import License
 from ._name import Name

@@ -19,7 +19,9 @@ def setup(**kwargs):
             'A Python library to create TrueLicense license files.',
         long_description = README + '\n\n' + CHANGES,
 
-        install_requires = [],
+        install_requires = [
+            'pycrypto >=2.6.1',
+            'pyOpenSSL >=0.14'],
         setup_requires = [],
 
         author = INFO['author'],

@@ -175,6 +175,22 @@ def serialize(value):
     return xml
 
 
+def to_document(e):
+    """
+    Transforms a serialised value to an XML document by wrapping it in <java>
+    tags and adding an XML declaration.
+
+    @param s
+        The serialised value.
+    @return a valid XML document string
+    """
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        '<java version="1.0" class="java.beans.XMLDecoder">'
+            '%s'
+        '</java>') % tostring(e)
+
+
 class UnknownFragmentException(Exception):
     """
     The exception raised by a deserialiser when it cannot handle an XML

@@ -24,7 +24,7 @@ from datetime import datetime
 from truepy import fromstring, tostring
 from truepy._bean import snake_to_camel, camel_to_snake
 from truepy._bean import value_to_xml
-from truepy._bean import deserialize, serialize
+from truepy._bean import deserialize, serialize, to_document
 from truepy._bean_serializers import _DESERIALIZER_CLASSES, bean_class
 
 
@@ -229,3 +229,16 @@ def deserialize4():
     assert_eq(
         expected,
         deserialize(serialize(expected)))
+
+
+def to_document0():
+    """Tests that to_document creates a valid XML document"""
+    expected = 'hello world'
+
+    assert_eq(
+        expected,
+        deserialize(
+            fromstring(
+                to_document(
+                    serialize(expected)))
+            [0]))
