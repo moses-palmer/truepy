@@ -18,6 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
+import base64
+import io
 import OpenSSL
 
 from truepy import LicenseData, License
@@ -110,6 +112,24 @@ PASSWORD = b'SecretPassword'
 def key():
     return OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM,
         KEY, PASSWORD)
+
+
+LICENSE = base64.b64decode(r'''
+Q/NuygnOtFnlxTaE5BUq8PyzxScbIJyevVZMOFz4MM2ONIM7ROqCJF96PnNoy2/74A/n0TUXDiPs
+WX2dIkI5RHbhobVAmDali9Bj+ImbMPvuNpouYo3Arx3C7NKDNhKhhp18Qms3gm9Qp8rn52ouvIiT
+TclW6y9k0lz3LlNZbML1Spwsrtqv1nEqGjEZO0rW9HUM6ItLxVH4bi33CZWNum8RYVsT4l7kNoA3
+QR16u2a9Xp8NzNdPL+C2Nvqal/P3lAoW+/pKzPrHCd2ZEpDzyANb/RgyPEwkSjEBT3yE8Ly8IsYl
++9pAMaY+oypSI8e/ns8cd6i+aBkbycr03oE5mKc+j9FV6Y0koKxL8wIVA6Slx0frT53irV4e2ohO
+OTTlzo8CXntP6LN0KBtoZ35gLYOwstpKtOUE1oVSbPofb4btUWWuJ96CwVjvsTk/bP0TMUMtEWDL
+ZjtK5B47c9i26JDSRsYPYPgMLoWhMi1i1dn/KVGJjsXqcyved7bF8q6/X82PnJpPt3Lm8MvEVOw6
+W8Y9OsAT70e2vcJuDZT+77gubcOFhnijUVpl/EP5koMbgRIqMo5Wm9c/vavNJZ6OIm7nJb2DUNyN
+KPwA/22SY7dP0mfLE93C7lUtqCCAEOxhEFmcG6nTbwFRdl8+t2Ow8xYCNu1I/J6oVFoOEWJgXTZD
+EqxOVE3+vz7ht8205sfV/apChvag3zxx3Qwp4gelhyKg/QHJsMo/1nApgyqT0SvagS7gvuWVCtWk
+T7kzaezeV2Fpp3oxYuDxZsucsogv6mRMk52mV2HiG3QoVRBr8GmeRZsz6Fk6lFfilELW8IFBU2KB
+V4Q6AfTu+jguPhc2RPQjTDH3Vjx+kVt6WTniaFITHkYOiFk7bHIVy3eX+XIgKfIFbH0MlSR6XLsq
+9Qkbmj2AaaiSwPPuzSjbFtLXTCBnoNaCh8r44/dRxoU4Z8UdHTgRtA1SkTyALqIhy3nqog==''')
+def license():
+    return io.BytesIO(LICENSE)
 
 
 @test
@@ -229,3 +249,23 @@ def License_verify_valid():
         license_data = LicenseData(
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01')).verify(certificate())
+
+
+@test
+def License_load_invalid_data():
+    """Tests that License.load fails for invalid license data"""
+    with assert_exception(License.InvalidPasswordException):
+        License.load(io.BytesIO(b'hello world!!!!!'), b'password')
+
+
+@test
+def License_load_invalid_password():
+    """Tests that License.load fails for invalid license data"""
+    with assert_exception(License.InvalidPasswordException):
+        License.load(license(), b'invalid password')
+
+
+@test
+def License_load():
+    """Tests that License.load succeeds valid license data"""
+    License.load(license(), b'valid password')

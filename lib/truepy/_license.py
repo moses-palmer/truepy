@@ -17,9 +17,13 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import base64
+import gzip
 import hashlib
+import io
 import OpenSSL
 import sys
+
+from Crypto.Cipher import DES
 
 from . import LicenseData, fromstring
 from ._bean import deserialize, serialize, to_document
@@ -250,3 +254,37 @@ class License(object):
         else:
             return data + bytes(padding_length
                 for i in range(block_size - len(data) % block_size))
+
+    @classmethod
+    def load(self, f, password):
+        """
+        Loads a license from a stream.
+
+        @param f
+            The data stream.
+        @param password
+            The password used by the licensed application.
+        @return a License object
+        @raise ValueError if the input data is invalid
+        @raise truepy.License.InvalidPasswordException if the password is
+            invalid
+        """
+        # Initialise cryptography
+        key, iv = self._key_iv(password)
+        des = DES.new(
+            key = key,
+            IV = iv,
+            mode = DES.MODE_CBC)
+
+        # Decrypt the input stream
+        encrypted_data = f.read()
+        decrypted_data = self._unpad(des.decrypt(encrypted_data))
+
+        # Decompress and parse the XML
+        decrypted_stream = io.BytesIO(decrypted_data)
+        with gzip.GzipFile(fileobj = decrypted_stream, mode = 'r') as gz:
+            xml_data = gz.read()
+
+        # Use the first child of the top-level java element
+        element = fromstring(xml_data)[0]
+        return deserialize(element)
