@@ -17,6 +17,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import base64
+import hashlib
 import OpenSSL
 import sys
 
@@ -32,6 +33,11 @@ class License(object):
     """
 
     SIGNATURE_ENCODING = 'US-ASCII/Base64'
+
+    SALT = b'\xCE\xFB\xDE\xAC\x05\x02\x19\x71'
+    ITERATIONS = 2005
+    DIGEST = hashlib.md5
+    KEY_SIZE = 8
 
     class InvalidSignatureException(Exception):
         """Raised when the signature does not match"""
@@ -167,3 +173,31 @@ class License(object):
                 self._signature_digest)
         except Exception as e:
             raise self.InvalidSignatureException(e)
+
+    @classmethod
+    def _key_iv(self, password, salt = SALT, iterations = ITERATIONS,
+            digest = hashlib.md5, key_size = KEY_SIZE):
+        """
+        Derives a key from a password.
+
+        The default values will generate a key and IV for DES encryption
+        compatible with PKCS#5 1.5.
+
+        @param password
+            The password from which to derive the key.
+        @param salt
+            The password salt. This parameter is not validated.
+        @param iteration
+            The number of hashing iterations. This parameter is not validated.
+        @param digest
+            The digest method to use.
+        @param key_size
+            The key size to generate.
+        @return the tuple (key, iv)
+        """
+        # Perform the hashing iterations
+        keyiv = password + salt
+        for i in range(iterations):
+            keyiv = digest(keyiv).digest()
+
+        return (keyiv[:key_size], keyiv[key_size:])
