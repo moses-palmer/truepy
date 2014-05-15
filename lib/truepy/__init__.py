@@ -17,3 +17,4 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from ._info import *
+from ._name import Name
