@@ -17,4 +17,5 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from ._info import *
+from ._license_data import LicenseData
 from ._name import Name
