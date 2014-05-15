@@ -39,8 +39,14 @@ class License(object):
     DIGEST = hashlib.md5
     KEY_SIZE = 8
 
+    BLOCK_SIZE = 8
+
     class InvalidSignatureException(Exception):
         """Raised when the signature does not match"""
+        pass
+
+    class InvalidPasswordException(Exception):
+        """Raised when the license password is invalid"""
         pass
 
     @property
@@ -201,3 +207,46 @@ class License(object):
             keyiv = digest(keyiv).digest()
 
         return (keyiv[:key_size], keyiv[key_size:])
+
+    @classmethod
+    def _unpad(self, data):
+        """
+        Removes PKCS#5 padding from data.
+
+        @param data
+            The data to unpad.
+        @raise truepy.License.InvalidPasswordException if the padding is
+            invalid
+        """
+        if sys.version_info.major < 3:
+            padding_length = ord(data[-1])
+            is_valid = all(ord(d) == padding_length
+                for d in data[-padding_length:])
+        else:
+            padding_length = data[-1]
+            is_valid = all(d == padding_length
+                for d in data[-padding_length:])
+        if not is_valid:
+            raise self.InvalidPasswordException('invalid PKCS#5 padding')
+
+        return data[:-padding_length]
+
+    @classmethod
+    def _pad(self, data, block_size = BLOCK_SIZE):
+        """
+        Adds PKCS#5 padding to data.
+
+        @param data
+            The data to pad.
+        @param block_size
+            The encryption block size. The default value is compatible with DES.
+        @return padded data
+        """
+        padding_length = block_size - len(data) % block_size
+
+        if sys.version_info.major < 3:
+            return data + ''.join(
+                [chr(block_size - len(data) % block_size)] * padding_length)
+        else:
+            return data + bytes(padding_length
+                for i in range(block_size - len(data) % block_size))
