@@ -18,7 +18,11 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import re
 
+from ._bean import bean_serializer, value_to_xml
+from ._bean_serializers import bean_class
 
+
+@bean_class('javax.security.auth.x500.X500Principal')
 class Name(list):
     """
     A class representing a simplified version of an X500 name.
@@ -32,6 +36,10 @@ class Name(list):
     ESCAPABLES = ('"', '+', ',', ';', '<', '>')
 
     SUB_RE = re.compile(r'\#([0-9a-fA-F]{2})')
+
+    @classmethod
+    def bean_deserialize(self, element):
+        return self(element.find('.//string').text)
 
     @classmethod
     def escape(self, s):
@@ -87,3 +95,11 @@ class Name(list):
     def __str__(self):
         return ','.join('%s=%s' % (k, self.escape(v))
             for (k, v) in self)
+
+
+@bean_serializer(Name)
+def name_serializer(v):
+    """Serialises a truepy.Name instance to a
+    javax.security.auth.x500.X500Principal"""
+    return value_to_xml(
+        str(v), 'string', Name.bean_class)

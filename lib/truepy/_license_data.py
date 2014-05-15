@@ -21,8 +21,10 @@ import json
 from datetime import datetime
 
 from ._name import Name
+from ._bean_serializers import bean_class
 
 
+@bean_class('de.schlichtherle.license.LicenseContent')
 class LicenseData(object):
     """
     A class representing a license with a validity window and meta data.

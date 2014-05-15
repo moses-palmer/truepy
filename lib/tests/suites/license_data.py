@@ -18,7 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
-from truepy import LicenseData, Name
+from truepy import LicenseData, Name, fromstring, tostring
+from truepy._bean import deserialize, serialize
 
 
 @test
@@ -254,3 +255,90 @@ def LicenseData_list_extra():
         '2014-01-01T00:00:01',
         extra = extra)
     assert_eq(expected, license.extra)
+
+
+@test
+def LicenseData_serialize():
+    """Tests that a LicenseData can be serialised to XML"""
+    expected = tostring(fromstring(
+        '<object class="de.schlichtherle.license.LicenseContent">'
+            '<void property="consumerType"><string /></void>'
+            '<void property="extra">'
+                '<string>{"hello": "world"}</string>'
+            '</void>'
+            '<void property="holder">'
+                '<object class="javax.security.auth.x500.X500Principal">'
+                    '<string>CN=Unknown</string>'
+                '</object>'
+            '</void>'
+            '<void property="information">'
+                '<string>some information</string>'
+            '</void>'
+            '<void property="issued">'
+                '<object class="java.util.Date">'
+                    '<long>1388534401000</long>'
+                '</object>'
+            '</void>'
+            '<void property="issuer">'
+                '<object class="javax.security.auth.x500.X500Principal">'
+                    '<string>CN=issuer</string>'
+                '</object>'
+            '</void>'
+            '<void property="notAfter">'
+                '<object class="java.util.Date">'
+                    '<long>1388534401000</long>'
+                '</object>'
+            '</void>'
+            '<void property="notBefore">'
+                '<object class="java.util.Date">'
+                    '<long>1388534400000</long>'
+                '</object>'
+            '</void>'
+            '<void property="subject">'
+                '<string>CN=subject</string>'
+            '</void>'
+        '</object>'))
+    assert_eq(expected,
+        tostring(serialize(LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01',
+            '2014-01-01T00:00:01',
+            issuer = 'CN=issuer',
+            subject = 'CN=subject',
+            information = 'some information',
+            extra = {'hello': 'world'}))))
+
+
+@test
+def LicenseData_deserialize():
+    """Tests that a LicenseData can be serialised to XML"""
+    license_data1 = LicenseData(
+        '2014-01-01T00:00:00',
+        '2014-01-01T00:00:01',
+        '2014-01-01T00:00:01',
+        issuer = 'CN=issuer',
+        subject = 'subject',
+        information = 'some information',
+        extra = {'hello': 'world'})
+    license_data2 = deserialize(serialize(license_data1))
+    assert_eq(
+        license_data1.not_before,
+        license_data2.not_before)
+    assert_eq(
+        license_data1.not_after,
+        license_data2.not_after)
+    assert_eq(
+        license_data1.issued,
+        license_data2.issued)
+    assert_eq(
+        license_data1.issuer,
+        license_data2.issuer)
+    assert_eq(
+        license_data1.subject,
+        license_data2.subject)
+    assert_eq(
+        license_data1.information,
+        license_data2.information)
+    assert_eq(
+        license_data1.extra,
+        license_data2.extra)

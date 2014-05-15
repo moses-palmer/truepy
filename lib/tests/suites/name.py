@@ -18,7 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .. import *
 
-from truepy import Name
+from truepy import Name, tostring
+from truepy._bean import serialize
 
 
 @test
@@ -97,3 +98,15 @@ def Name_str1():
     s = 'CN=#3Ctoken#3E , O=organisation '
     expected = 'CN=#3Ctoken#3E,O=organisation'
     assert_eq(expected, str(Name(s)))
+
+
+@test
+def Name_serialize0():
+    """Tests that a name can be serialised to XML"""
+    s = 'CN=#3Ctoken#3E , O=organisation '
+
+    assert_eq(
+        '<object class="javax.security.auth.x500.X500Principal">'
+            '<string>CN=#3Ctoken#3E,O=organisation</string>'
+        '</object>',
+        tostring(serialize(Name(s))))
