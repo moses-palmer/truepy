@@ -288,3 +288,33 @@ class License(object):
         # Use the first child of the top-level java element
         element = fromstring(xml_data)[0]
         return deserialize(element)
+
+    def store(self, f, password):
+        """
+        Stores this license to a stream.
+
+        @param f
+            The data stream.
+        @param password
+            The password used by the license application.
+        """
+        # Initialise cryptography
+        key, iv = self._key_iv(password)
+        des = DES.new(
+            key = key,
+            IV = iv,
+            mode = DES.MODE_CBC)
+
+        # Serialize the license
+        xml_data = to_document(serialize(self)) if sys.version_info.major < 3 \
+            else bytes(to_document(serialize(self)), 'ascii')
+
+        # Compress the XML
+        compressed_stream = io.BytesIO()
+        with gzip.GzipFile(fileobj = compressed_stream, mode = 'w') as gz:
+            gz.write(xml_data)
+        compressed_data = compressed_stream.getvalue()
+
+        # Encrypt the data and write it to the output stream
+        encrypted_data = des.encrypt(self._pad(compressed_data))
+        f.write(encrypted_data)

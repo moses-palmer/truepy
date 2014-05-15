@@ -269,3 +269,14 @@ def License_load_invalid_password():
 def License_load():
     """Tests that License.load succeeds valid license data"""
     License.load(license(), b'valid password')
+
+
+@test
+def License_store():
+    """Tests that a license can be loaded from the stored data"""
+    f = io.BytesIO()
+    License.issue(certificate(), key(),
+        license_data = LicenseData(
+            '2014-01-01T00:00:00',
+            '2014-01-01T00:00:01')).store(f, b'valid password')
+    License.load(io.BytesIO(f.getvalue()), b'valid password')
