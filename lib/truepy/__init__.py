@@ -16,6 +16,17 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from xml.etree.ElementTree import tostring as _tostring
+from xml.etree.ElementTree import fromstring
+
+
+import sys
+if sys.version_info.major > 2:
+    def tostring(e):
+        return str(_tostring(e), 'ascii')
+else:
+    tostring = _tostring
+
 from ._info import *
 from ._license_data import LicenseData
 from ._name import Name
