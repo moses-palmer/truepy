@@ -18,6 +18,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import OpenSSL
 
+from . import License
+
 
 def main(action, action_arguments, **args):
     try:
@@ -33,6 +35,43 @@ ACTIONS = {}
 def action(f):
     ACTIONS[f.__name__] = f
     return f
+
+
+@action
+def show(license_file, issuer_certificate, license_file_password, **args):
+    """show [license file]
+    Verifies the signature of a license file and shows information about it. You
+    must specify the issuer certificate as --issuer-certificate on the command
+    line, and the license file password as --license-file-password.
+    """
+    with open(license_file, 'rb') as f:
+        try:
+            license = License.load(f, license_file_password)
+        except Exception as e:
+            raise RuntimeError('Failed to load license file')
+
+    try:
+        license.verify(issuer_certificate)
+    except:
+        raise RuntimeError('Failed to verify license')
+
+    print('License information')
+    print('\tissued by:\t"%s"' % str(license.data.issuer))
+    print('\tissued to:\t"%s"' % str(license.data.holder))
+    print('\tvalid from:\t%s' % str(license.data.not_before))
+    print('\tvalid to:\t%s' % str(license.data.not_after))
+    print('\tsubject:\t%s' % ('"%s"' % license.data.subject
+        if license.data.subject
+        else '<none>'))
+    print('\tconsumer_type:\t%s' % ('"%s"' % license.data.consumer_type
+        if license.data.consumer_type
+        else '<none>'))
+    print('\tinformation:\t%s' % ('"%s"' % license.data.information
+        if license.data.information
+        else '<none>'))
+    print('\textra data:\t%s' % ('"%s"' % license.data.extra
+        if license.data.extra
+        else '<none>'))
 
 
 import argparse
