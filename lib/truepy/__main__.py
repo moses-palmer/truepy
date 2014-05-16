@@ -22,7 +22,25 @@ def main(**args):
 
 
 import argparse
+import getpass
 import sys
+
+
+class PasswordAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string = None):
+        password = value[-1] if isinstance(value, list) else value
+        destination = ' '.join(s
+            for s in self.dest.split('_')
+            if not s == 'password')
+        if password == '-':
+            password = getpass.getpass(
+                'Please enter password for %s:' % destination)
+        setattr(namespace, self.dest, self.get_value(
+            value[:-1] if isinstance(value, list) else [value], password))
+
+    def get_value(self, value, password):
+        return password
+
 
 parser = argparse.ArgumentParser(prog = 'truepy', description =
     'Creates and verifies TrueLicense version 1 licenses')
