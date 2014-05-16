@@ -18,7 +18,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import OpenSSL
 
-from . import License
+from . import License, LicenseData
 
 
 def main(action, action_arguments, **args):
@@ -72,6 +72,40 @@ def show(license_file, issuer_certificate, license_file_password, **args):
     print('\textra data:\t%s' % ('"%s"' % license.data.extra
         if license.data.extra
         else '<none>'))
+
+
+@action
+def issue(license_file, license_description, issuer_certificate, issuer_key,
+    license_file_password, **args):
+    """issue [license file] [license description]
+    Issues a new license and shows information about it. You must specify the
+    issuer certificate and key as --issuer-certificate/key on the command line,
+    and the license file password as --license-file-password.
+
+    [license description] must be one command line argument on the form
+    not_before=2014-01-01T00:00:00,not_after=2016-01-01T00:00:00,... containing
+    license data fields.
+    """
+    try:
+        license_data_parameters = dict(
+            (p.strip() for p in i.split('=', 1))
+            for i in license_description.split(','))
+    except:
+        raise RuntimeError('Invalid license data description: %s',
+            license_description)
+
+    try:
+        license_data = LicenseData(**license_data_parameters)
+    except TypeError:
+        raise RuntimeError('Incomplete license data description: %s',
+            license_description)
+
+    license = License.issue(issuer_certificate, issuer_key,
+        license_data = license_data)
+    with open(license_file, 'wb') as f:
+        license.store(f, license_file_password)
+
+    show(license_file, issuer_certificate, license_file_password)
 
 
 import argparse
