@@ -66,12 +66,35 @@ class CertificateAction(argparse.Action):
             setattr(namespace, self.dest, certificate)
 
 
+class KeyAction(PasswordAction):
+    def get_value(self, value, password):
+        with open(value[0], 'rb') as f:
+            data = f.read()
+        key = None
+        for file_type in (
+                OpenSSL.crypto.FILETYPE_PEM,
+                OpenSSL.crypto.FILETYPE_ASN1):
+            try:
+                return OpenSSL.crypto.load_privatekey(file_type, data, password)
+            except:
+                pass
+        raise argparse.ArgumentError(self,
+            'Failed to load key')
+
+
 parser = argparse.ArgumentParser(prog = 'truepy', description =
     'Creates and verifies TrueLicense version 1 licenses')
 
 parser.add_argument('--issuer-certificate', help =
     'The issuer certificate.',
     action = CertificateAction)
+
+parser.add_argument('--issuer-key', help =
+    'The private key to the certificate and the password; pass "-" as password '
+    'to read it from stdin.',
+    nargs = 2,
+    const = None,
+    action = KeyAction)
 
 try:
     sys.exit(main(**vars(parser.parse_args())))
