@@ -42,3 +42,9 @@ operations do not perform signing and signature verification.
 Issuing a new license requires the private key of the issuer certificate.
 
 Verifying a license signature requires the issuer certificate.
+
+
+Quick application reference
+---------------------------
+
+Please run the application with ``python -m truepy -h`` for more information.
