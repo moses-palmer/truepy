@@ -19,9 +19,20 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import OpenSSL
 
 
-def main(**args):
-    # TODO: Implement
+def main(action, action_arguments, **args):
+    try:
+        action(*action_arguments, **args)
+    except TypeError as e:
+        raise RuntimeError('%s requires additional arguments',
+            action.__name__)
+
     return 0
+
+
+ACTIONS = {}
+def action(f):
+    ACTIONS[f.__name__] = f
+    return f
 
 
 import argparse
@@ -82,8 +93,21 @@ class KeyAction(PasswordAction):
             'Failed to load key')
 
 
+class ActionAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string = None):
+        try:
+            action = ACTIONS[value[0]]
+        except KeyError:
+            raise argparse.ArgumentError(self,
+                'Unknown action')
+        setattr(namespace, self.dest, action)
+
+
 parser = argparse.ArgumentParser(prog = 'truepy', description =
-    'Creates and verifies TrueLicense version 1 licenses')
+    'Creates and verifies TrueLicense version 1 licenses',
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+    epilog = 'Actions\n=======\n%s' % ('\n\n'.join(
+        action.__doc__ for action in ACTIONS.values())))
 
 parser.add_argument('--issuer-certificate', help =
     'The issuer certificate.',
@@ -100,6 +124,16 @@ parser.add_argument('--license-file-password', help =
     'The password of the license file; pass "-" to read from stdin.',
     const = None,
     action = PasswordAction)
+
+parser.add_argument('action', help =
+    'The action to perform; this can be any of %s' % ', '.join(ACTIONS.keys()),
+    nargs = 1,
+    action = ActionAction)
+
+parser.add_argument('action_arguments', help =
+    'Arguments to the action. See below for more information.',
+    nargs = '*',
+    default = [])
 
 try:
     sys.exit(main(**vars(parser.parse_args())))
