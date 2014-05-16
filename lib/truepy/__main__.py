@@ -96,6 +96,11 @@ parser.add_argument('--issuer-key', help =
     const = None,
     action = KeyAction)
 
+parser.add_argument('--license-file-password', help =
+    'The password of the license file; pass "-" to read from stdin.',
+    const = None,
+    action = PasswordAction)
+
 try:
     sys.exit(main(**vars(parser.parse_args())))
 except Exception as e:
