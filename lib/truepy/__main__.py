@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import OpenSSL
+
+
 def main(**args):
     # TODO: Implement
     return 0
@@ -42,8 +45,33 @@ class PasswordAction(argparse.Action):
         return password
 
 
+class CertificateAction(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string = None):
+        with open(value, 'rb') as f:
+            data = f.read()
+        certificate = None
+        for file_type in (
+                OpenSSL.crypto.FILETYPE_PEM,
+                OpenSSL.crypto.FILETYPE_ASN1):
+            try:
+                certificate = OpenSSL.crypto.load_certificate(
+                    file_type, data)
+                break
+            except:
+                pass
+        if certificate is None:
+            raise argparse.ArgumentError(self,
+                'Failed to load certificate')
+        else:
+            setattr(namespace, self.dest, certificate)
+
+
 parser = argparse.ArgumentParser(prog = 'truepy', description =
     'Creates and verifies TrueLicense version 1 licenses')
+
+parser.add_argument('--issuer-certificate', help =
+    'The issuer certificate.',
+    action = CertificateAction)
 
 try:
     sys.exit(main(**vars(parser.parse_args())))
