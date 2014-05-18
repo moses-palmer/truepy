@@ -99,7 +99,7 @@ class License(object):
         license_data_xml = fromstring(encoded)
         if license_data_xml.tag != 'java' or len(license_data_xml) != 1:
             raise ValueError('invalid encoded license data: %s', encoded)
-        self._license_data = deserialize(license_data_xml[0])
+        self.data = deserialize(license_data_xml[0])
         self._encoded = encoded
 
         self._signature = signature
