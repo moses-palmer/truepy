@@ -22,15 +22,15 @@ from . import tostring
 
 
 def snake_to_camel(s):
-    """
-    Converts snake_case to camelCase.
+    """Converts snake_case to camelCase.
 
     Consecutive underscores in the input will be treated as a single underscore.
     Trailing underscores will be discarded.
 
-    @param s
-        The snake case string to transform.
-    @return a camel case string
+    :param str s: The snake case string to transform.
+
+    :return: a camel case string
+    :rtype: str
     """
     def characters():
         was_underscore = False
@@ -44,12 +44,12 @@ def snake_to_camel(s):
 
 
 def camel_to_snake(s):
-    """
-    Converts camelCase to snake_case.
+    """Converts camelCase to snake_case.
 
-    @param s
-        The camel case string to transform.
-    @return a snake case string
+    :param str s: The camel case string to transform.
+
+    :return: a snake case string
+    :rtype: str
     """
     def characters():
         for c in s:
@@ -60,21 +60,23 @@ def camel_to_snake(s):
 
 
 def value_to_xml(value, tag_name, class_name = None):
-    """
-    Serialises a value as the XML
+    """Serialises a value.
+
+    The XML will be
         <object class="(class_name)">
             <(tag_name)>(value)</(tag_name)>
         </object>
-    if class_name is given, otherwise as
+    if class_name is given, otherwise
         <(tag_name)>(value)</(tag_name)>
 
-    @param value
-        The value as a string.
-    @param tag_name
-        The tag name to use for the value.
-    @param class_name
-        The Java class name to use.
-    @return an instance of xml.etree.ElementTree.Element
+    :param str value: The value.
+
+    :param str tag_name: The tag name to use for the value.
+
+    :param str class_name: The Java class name to use.
+
+    :return: an element
+    :rtype: xml.etree.ElementTree.Element
     """
     if class_name is None:
         o = ElementTree.Element(tag_name)
@@ -90,14 +92,13 @@ def value_to_xml(value, tag_name, class_name = None):
 _SERIALIZERS = {}
 
 def bean_serializer(*value_types):
-    """
-    Marks a function as a serialiser for a specific type.
+    """Marks a function as a serialiser for a specific type.
 
     The function must return an xml.etree.ElementTree.Element. It is passed a
     single value.
 
-    @param value_types
-        The types that this serialiser is capable of serialising.
+    :param value_types: The types that this serialiser is capable of
+        serialising.
     """
     def inner(f):
         for value_type in value_types:
@@ -108,13 +109,17 @@ def bean_serializer(*value_types):
 
 
 def _serialize_object(value):
-    """
-    Serialises an object.
+    """Serialises an object.
 
     The object must have the attribute 'bean_class'.
 
     All properties of the object are wrapped in <void property="(name)"></void>,
     and must thus themselves be serialisable.
+
+    :param object value: The value to serialise.
+
+    :return: an element
+    :rtype: xml.etree.ElementTree.Element
     """
     try:
         class_name = getattr(value, 'bean_class')
@@ -139,16 +144,17 @@ def _serialize_object(value):
 
 
 def serialize(value):
-    """
-    Serialises a value.
+    """Serialises a value.
 
     The value type must have a serialiser registered, or be an object with the
     attribute 'bean_class' whose properties can be serialised with serialize.
 
-    @param value
-        The value to serialise.
-    @return and xml.etree.ElementTree.Element describing the element
-    @raise ValueError if the value cannot be serialised
+    :param object value: The value to serialise.
+
+    :return: an element describing the value
+    :rtype: xml.etree.ElementTree.Element
+
+    :raises ValueError: if the value cannot be serialised
     """
     try:
         return _SERIALIZERS[type(value)](value)
@@ -176,13 +182,15 @@ def serialize(value):
 
 
 def to_document(e):
-    """
-    Transforms a serialised value to an XML document by wrapping it in <java>
-    tags and adding an XML declaration.
+    """Transforms a serialised value to an XML document.
 
-    @param s
-        The serialised value.
-    @return a valid XML document string
+    The serialised value will be wrapped in a `<java>` tag and an XML
+    declaration will be prepended.
+
+    :param str s: The serialised value.
+
+    :return: a valid XML document string
+    :rtype: str
     """
     return (
         '<?xml version="1.0" encoding="utf-8"?>'
@@ -192,8 +200,7 @@ def to_document(e):
 
 
 class UnknownFragmentException(Exception):
-    """
-    The exception raised by a deserialiser when it cannot handle an XML
+    """The exception raised by a deserialiser when it cannot handle an XML
     fragment.
     """
     pass
@@ -201,8 +208,7 @@ class UnknownFragmentException(Exception):
 _DESERIALIZERS = []
 
 def bean_deserializer(f):
-    """
-    Marks a function as a deserialiser.
+    """Marks a function as a deserialiser.
 
     The function is passed an xml.etree.ElementTree.Element. If the function is
     not capable of deserialising the XML, it must raise
@@ -213,16 +219,17 @@ def bean_deserializer(f):
 
 
 def deserialize(element):
-    """
-    Deserialises a value.
+    """Deserialises a value.
 
     The value type must have a serialiser registered, or be an object with the
     attribute 'bean_class' whose properties can be serialised with serialize.
 
-    @param element
-        The XML fragment to serialise.
-    @return a value
-    @raise ValueError if the value cannot be serialised
+    :param xml.etree.ElementTree.Element element: The XML fragment to serialise.
+
+    :return: a value
+    :rtype: object
+
+    :raises ValueError: if the value cannot be serialised
     """
     for deserializer in _DESERIALIZERS:
         try:

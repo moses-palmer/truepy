@@ -24,47 +24,39 @@ from ._bean_serializers import bean_class
 
 @bean_class('javax.security.auth.x500.X500Principal')
 class Name(list):
-    """
-    A class representing a simplified version of an X500 name.
-
-    The string must be on the form "<type>=<value>[,<type>=<value,...].
-
-    No escapes for <type> are supported, and only DQUOTE, PLUS, COMMA, SEMI,
-    LANGLE and RANGLE are supported for <value>. Leading and trailing space is
-    stripped for the value.
-    """
+    #: The escapable characters
     ESCAPABLES = ('"', '+', ',', ';', '<', '>')
 
     SUB_RE = re.compile(r'\#([0-9a-fA-F]{2})')
 
     @classmethod
-    def bean_deserialize(self, element):
+    def _bean_deserialize(self, element):
         return self(element.find('.//string').text)
 
     @classmethod
     def escape(self, s):
-        """
-        Escapes a string.
+        """Escapes a string.
 
-        @param s
-            The string to escape.
-        @return an escaped string
+        :param str s: The string to escape.
+
+        :return: an escaped string
+        :rtype: str
         """
         return ''.join('#%02X' % ord(c) if c in self.ESCAPABLES else c
             for c in s)
 
     @classmethod
     def unescape(self, s):
-        """
-        Unescapes a string.
+        """Unescapes a string.
 
         This is the inverse operation to escape.
 
-        @param s
-            The string to unescape.
-        @return an unescaped string
-        @raise ValueError if an invalid escape is encountered; only characters
-            in ESCAPABLES are supported
+        :param str s: The string to unescape.
+        :return: an unescaped string
+        :rtype: str
+
+        :raises ValueError: if an invalid escape is encountered; only characters
+            in `ESCAPABLES` are supported
         """
         def replacer(m):
             char = chr(int(m.group(1), 16))
@@ -75,8 +67,13 @@ class Name(list):
         return self.SUB_RE.sub(replacer, s)
 
     def __init__(self, name):
-        """
-        Creates a new instance of Name from a string.
+        """A class representing a simplified version of an X500 name.
+
+        The string must be on the form "<type>=<value>[,<type>=<value,...].
+
+        No escapes for <type> are supported, and only DQUOTE, PLUS, COMMA,
+        SEMI, LANGLE and RANGLE are supported for <value>. Leading and trailing
+        space is stripped for the value.
 
         @param name
             The X509 name string from which to create this Name.

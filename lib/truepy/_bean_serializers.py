@@ -99,16 +99,17 @@ def datetime_deserializer(element):
 _DESERIALIZER_CLASSES = {}
 
 def default_bean_deserialize(self, element):
-    """
-    The default bean deserialiser for classes decorated with @bean_class.
+    """The default bean deserialiser for classes decorated with
+    `@`:meth:`~truepy._bean_serializers.bean_class`.
 
     This function will call the constructor with all properties read from
-    element as named arguments. If this fails with TypeError, it will call the
+    element as named arguments. If this fails with `TypeError`, it will call the
     empty constructor and then set all properties.
 
-    @param element
-        The XML fragment to deserialise.
-    @return an instance of self
+    :param xml.etree.ElementTree.Element element: The XML fragment to
+        deserialise.
+    :return: an object
+    :rtype: self
     """
     properties = {camel_to_snake(e.attrib['property']): deserialize(e[0])
         for e in element.findall('.//void')}
@@ -124,21 +125,21 @@ def default_bean_deserialize(self, element):
     return result
 
 def bean_class(class_name):
-    """
-    Marks a class as deserialisable and sets its class name.
+    """Marks a class as deserialisable and sets its class name.
 
-    A class decorated with this decorator does not need to define 'bean_class'.
+    A class decorated with this decorator does not need to define the
+    `bean_class` attribute.
 
-    The class method 'bean_deserialize' will be called when the XML fragment
-    <object class="(class_name)">...</object> is encountered. If the class does
-    not have this callable, it will be set to default_bean_deserialize.
+    The class method `_bean_deserialize` will be called when the XML fragment
+    `<object class="(class_name)">...</object>` is encountered. If the class
+    does not have this callable, it will be set to
+    :meth:`~truepy._bean_serializers.default_bean_deserialize`.
 
-    @param class_name
-        The class name to use for this class.
+    :param str class_name: The class name to use for this class.
     """
     def inner(c):
-        if not callable(getattr(c, 'bean_deserialize', None)):
-            c.bean_deserialize = types.MethodType(default_bean_deserialize, c)
+        if not callable(getattr(c, '_bean_deserialize', None)):
+            c._bean_deserialize = types.MethodType(default_bean_deserialize, c)
         c.bean_class = class_name
         _DESERIALIZER_CLASSES[class_name] = c
         return c
@@ -147,14 +148,14 @@ def bean_class(class_name):
 
 @bean_deserializer
 def object_deserializer(element):
-    """
-    Deserialises <object class="(class_name)">...</object> for registered values
-    of class_name.
+    """Deserialises XML for registered bean classes.
 
-    A class is registered by decorating it with @bean_class.
+    The XML must be like `<object class="(class_name)">...</object>`.
+
+    A class is registered by decorating it with `@`:meth:`~bean_class`.
     """
     try:
-        return _DESERIALIZER_CLASSES[element.attrib['class']].bean_deserialize(
+        return _DESERIALIZER_CLASSES[element.attrib['class']]._bean_deserialize(
             element)
     except KeyError:
         raise UnknownFragmentException()
