@@ -32,16 +32,12 @@ from ._bean_serializers import bean_class
 
 @bean_class('de.schlichtherle.xml.GenericCertificate')
 class License(object):
-    """
-    A class representing a signed license.
-    """
-
     SIGNATURE_ENCODING = 'US-ASCII/Base64'
 
-    SALT = b'\xCE\xFB\xDE\xAC\x05\x02\x19\x71'
-    ITERATIONS = 2005
-    DIGEST = hashlib.md5
-    KEY_SIZE = 8
+    _SALT = b'\xCE\xFB\xDE\xAC\x05\x02\x19\x71'
+    _ITERATIONS = 2005
+    _DIGEST = hashlib.md5
+    _KEY_SIZE = 8
 
     BLOCK_SIZE = 8
 
@@ -70,7 +66,7 @@ class License(object):
 
     @property
     def signature_encoding(self):
-        """The encoding of the signature; this is always US-ASCII/Base64"""
+        """The encoding of the signature; this is always *US-ASCII/Base64*"""
         return 'US-ASCII/Base64'
 
     @signature_encoding.setter
@@ -80,25 +76,27 @@ class License(object):
 
     def __init__(self, encoded, signature, signature_algorithm = 'SHA1withRSA',
             signature_encoding = SIGNATURE_ENCODING):
-        """
-        Creates a new license object.
+        """A class representing a signed license.
 
-        @param encoded
-            The encoded license data.
-        @param signature
-            The license signature.
-        @param signature_algorithm
-            The algorithm used to sign the license. This must be on the form
-            <digest>with<encryption>.
-        @param signature_encoding
-            The encoding of the signature. This must be US-ASCII/Base64.
-        @raise ValueError if encoded is not an encoded LicenseData object, if
-            signature_algorithm is invalid or if signature_encoding is not
-            US-ASCII/Base64
+        :param str encoded: The encoded license data.
+
+        :param str signature: The license signature.
+
+        :param str signature_algorithm: The algorithm used to sign the license.
+            This must be on the form `<digest>with<encryption>`.
+
+        :param str signature_encoding: The encoding of the signature. This must
+            be `US-ASCII/Base64`.
+
+        :raises ValueError: if encoded is not an encoded
+            :class:`~truepy.LicenseData` object, if signature_algorithm is
+            invalid or if signature_encoding is not US-ASCII/Base64
         """
         license_data_xml = fromstring(encoded)
         if license_data_xml.tag != 'java' or len(license_data_xml) != 1:
             raise ValueError('invalid encoded license data: %s', encoded)
+        #: The decoded license data as an instance of
+        #: :class:`~truepy.LicenseData`
         self.data = deserialize(license_data_xml[0])
         self._encoded = encoded
 
@@ -113,22 +111,24 @@ class License(object):
 
     @classmethod
     def issue(self, certificate, key, digest = 'SHA1', **license_data):
-        """
-        Issues a new License.
+        """Issues a new License.
 
-        @param certificate
-            The issuer certificate.
-        @param key
-            The private key of the certificate.
-        @param digest
-            The digest algorithm to use.
-        @param license_data
-            Parameter to pass on to truepy.LicenseData. Do not pass issuer; this
-            value will be read from the certificate subject. You may also
-            specify the single value license_data; this must in that case be an
-            instance of truepy.LicenseData
-        @raise ValueError if license data cannot be created from the keyword
+        :param OpenSSL.crypto.X509 certificate: The issuer certificate.
+
+        :param bytes key: The private key of the certificate.
+
+        :param str digest: The digest algorithm to use.
+
+        :param license_data: Parameters to pass on to truepy.LicenseData. Do not
+            pass issuer; this value will be read from the certificate subject.
+            You may also specify the single value license_data; this must in
+            that case be an instance of :class:`~truepy.LicenseData`.
+
+        :raises ValueError: if license data cannot be created from the keyword
             arguments or if the issuer name is passed
+
+        :return: a new license
+        :rtype: truepy.License
         """
         if 'license_data' in license_data:
             if len(license_data) != 1:
@@ -167,12 +167,11 @@ class License(object):
         return License(encoded, signature, signature_algorithm)
 
     def verify(self, certificate):
-        """
-        Verifies the signature of this certificate against a certificate.
+        """Verifies the signature of this certificate against a certificate.
 
-        @param certificate
-            The issuer certificate.
-        @raise truepy.License.InvalidSignatureException if the signature does
+        :param OpenSSL.crypto.X509 certificate: The issuer certificate.
+
+        :raises truepy.License.InvalidSignatureException: if the signature does
             not match
         """
         try:
@@ -185,25 +184,26 @@ class License(object):
             raise self.InvalidSignatureException(e)
 
     @classmethod
-    def _key_iv(self, password, salt = SALT, iterations = ITERATIONS,
-            digest = hashlib.md5, key_size = KEY_SIZE):
-        """
-        Derives a key from a password.
+    def _key_iv(self, password, salt = _SALT, iterations = _ITERATIONS,
+            digest = _DIGEST, key_size = _KEY_SIZE):
+        """Derives a key from a password.
 
         The default values will generate a key and IV for DES encryption
         compatible with PKCS#5 1.5.
 
-        @param password
-            The password from which to derive the key.
-        @param salt
-            The password salt. This parameter is not validated.
-        @param iteration
-            The number of hashing iterations. This parameter is not validated.
-        @param digest
-            The digest method to use.
-        @param key_size
-            The key size to generate.
-        @return the tuple (key, iv)
+        :param bytes password: The password from which to derive the key.
+
+        :param bytes salt: The password salt. This parameter is not validated.
+
+        :param int iterations: The number of hashing iterations. This parameter
+            is not validated.
+
+        :param digest: The digest method to use.
+
+        :param int key_size: The key size to generate.
+
+        :return: the key and IV
+        :rtype: (bytes, bytes)
         """
         # Perform the hashing iterations
         keyiv = password + salt
@@ -214,12 +214,14 @@ class License(object):
 
     @classmethod
     def _unpad(self, data):
-        """
-        Removes PKCS#5 padding from data.
+        """ Removes PKCS#5 1.5 padding from data.
 
-        @param data
-            The data to unpad.
-        @raise truepy.License.InvalidPasswordException if the padding is
+        :param bytes data: The data to unpad.
+
+        :return: unpadded data
+        :rtype: bytes
+
+        :raises truepy.License.InvalidPasswordException: if the padding is
             invalid
         """
         if sys.version_info.major < 3:
@@ -237,14 +239,15 @@ class License(object):
 
     @classmethod
     def _pad(self, data, block_size = BLOCK_SIZE):
-        """
-        Adds PKCS#5 padding to data.
+        """Adds PKCS#5 1.5 padding to data.
 
-        @param data
-            The data to pad.
-        @param block_size
-            The encryption block size. The default value is compatible with DES.
-        @return padded data
+        :param bytes data: The data to pad.
+
+        :param int block_size: The encryption block size. The default value is
+            compatible with DES.
+
+        :return: padded data
+        :rtype: bytes
         """
         padding_length = block_size - len(data) % block_size
 
@@ -257,16 +260,18 @@ class License(object):
 
     @classmethod
     def load(self, f, password):
-        """
-        Loads a license from a stream.
+        """Loads a license from a stream.
 
-        @param f
-            The data stream.
-        @param password
-            The password used by the licensed application.
-        @return a License object
-        @raise ValueError if the input data is invalid
-        @raise truepy.License.InvalidPasswordException if the password is
+        :param f: The data stream.
+        :type f: file or stream
+
+        :param bytes password: The password used by the licensed application.
+
+        :return: a license object
+        :rtype: truepy.License
+
+        :raises ValueError: if the input data is invalid
+        :raises truepy.License.InvalidPasswordException: if the password is
             invalid
         """
         # Initialise cryptography
@@ -290,13 +295,12 @@ class License(object):
         return deserialize(element)
 
     def store(self, f, password):
-        """
-        Stores this license to a stream.
+        """Stores this license to a stream.
 
-        @param f
-            The data stream.
-        @param password
-            The password used by the license application.
+        :param f: The data stream.
+        :type f: file or stream
+
+        :param bytes password: The password used by the license application.
         """
         # Initialise cryptography
         key, iv = self._key_iv(password)

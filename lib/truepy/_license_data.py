@@ -26,10 +26,6 @@ from ._bean_serializers import bean_class
 
 @bean_class('de.schlichtherle.license.LicenseContent')
 class LicenseData(object):
-    """
-    A class representing a license with a validity window and meta data.
-    """
-
     TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
     UNKNOWN_NAME = 'CN=Unknown'
@@ -82,28 +78,42 @@ class LicenseData(object):
     def __init__(self, not_before, not_after, issued = None, issuer = None,
             holder = None, subject = None, consumer_type = None,
             information = None, extra = None):
-        """
-        Creates a new license data object.
+        """A class representing a license with a validity window and meta data.
 
         Any timestamps passed must be either instances of datetime.datetime, or
         strings parsable by License.TIMESTAMP_FORMAT; the timezone is assumed to
         be UTC.
 
-        @param not_before, not_after
-            The validity window. not_before must be strictly before not_after.
-        @param issued
-            The timestamp when this license was issued. This defaults to
-            not_before.
-        @param issuer, holder
-            The issuer and holder of this certificate. These must be strings
-            parsable by truepy.Name() or instances of truepy.Name. If not
-            specified, UNKNOWN_NAME will be used.
-        @param subject, consumer_type, information
-            Free-form string data to associate with the license. These values
-            will be stringified.
-        @param extra
-            Any type of data to store in the license. If this is not a string,
-            it will be JSON serialised.
+        :param not_before: The timestamp when this license starts to be valid.
+        :type not_before: datetime.datetime or str
+
+        :param not_after: The timestamp when this license ceases to be valid.
+            This must be strictly after `not_before`.
+        :type not_after: datetime.datetime or str
+
+        :param issued: The timestamp when this license was issued. This defaults
+            to not_before.
+        :type issued: datetime.datetime or str
+
+        :param issuer: The issuer of this certificate. If not specified,
+            UNKNOWN_NAME will be used.
+        :type issuer: truepy.Name or str
+
+        :param holder: The holder of this certificate. If not specified,
+            UNKNOWN_NAME will be used.
+        :type issuer: truepy.Name or str
+
+        :param str subject: Free-form string data to associate with the license.
+            This value will be stringified.
+
+        :param str consumer_type: Free-form string data to associate with the
+            license. This value will be stringified.
+
+        :param str information: Free-form string data to associate with the
+            license. This value will be stringified.
+
+        :param object extra: Any type of data to store in the license. If this
+            is not a string, it will be JSON serialised.
         """
         def timestamp(v):
             if isinstance(v, datetime):
