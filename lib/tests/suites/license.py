@@ -115,19 +115,19 @@ def key():
 
 
 LICENSE = base64.b64decode(r'''
-Q/NuygnOtFnlxTaE5BUq8PyzxScbIJyevVZMOFz4MM2ONIM7ROqCJF96PnNoy2/74A/n0TUXDiPs
-WX2dIkI5RHbhobVAmDali9Bj+ImbMPvuNpouYo3Arx3C7NKDNhKhhp18Qms3gm9Qp8rn52ouvIiT
-TclW6y9k0lz3LlNZbML1Spwsrtqv1nEqGjEZO0rW9HUM6ItLxVH4bi33CZWNum8RYVsT4l7kNoA3
-QR16u2a9Xp8NzNdPL+C2Nvqal/P3lAoW+/pKzPrHCd2ZEpDzyANb/RgyPEwkSjEBT3yE8Ly8IsYl
-+9pAMaY+oypSI8e/ns8cd6i+aBkbycr03oE5mKc+j9FV6Y0koKxL8wIVA6Slx0frT53irV4e2ohO
-OTTlzo8CXntP6LN0KBtoZ35gLYOwstpKtOUE1oVSbPofb4btUWWuJ96CwVjvsTk/bP0TMUMtEWDL
-ZjtK5B47c9i26JDSRsYPYPgMLoWhMi1i1dn/KVGJjsXqcyved7bF8q6/X82PnJpPt3Lm8MvEVOw6
-W8Y9OsAT70e2vcJuDZT+77gubcOFhnijUVpl/EP5koMbgRIqMo5Wm9c/vavNJZ6OIm7nJb2DUNyN
-KPwA/22SY7dP0mfLE93C7lUtqCCAEOxhEFmcG6nTbwFRdl8+t2Ow8xYCNu1I/J6oVFoOEWJgXTZD
-EqxOVE3+vz7ht8205sfV/apChvag3zxx3Qwp4gelhyKg/QHJsMo/1nApgyqT0SvagS7gvuWVCtWk
-T7kzaezeV2Fpp3oxYuDxZsucsogv6mRMk52mV2HiG3QoVRBr8GmeRZsz6Fk6lFfilELW8IFBU2KB
-V4Q6AfTu+jguPhc2RPQjTDH3Vjx+kVt6WTniaFITHkYOiFk7bHIVy3eX+XIgKfIFbH0MlSR6XLsq
-9Qkbmj2AaaiSwPPuzSjbFtLXTCBnoNaCh8r44/dRxoU4Z8UdHTgRtA1SkTyALqIhy3nqog==''')
+r2dGlsYH1NaZnCjH6Gy2Lu3RicQuR0uu9el7rguz5ZE1eix3edK+lrYMeLyiVa882v3rtGs1LtdyBvzP
++4rcDmbzspIreKG8oGdw8E0j9bbS1ZfplIRo38+T63LLzoSi8kI2SAFZY9ZbCWTYhu2Vw7tPae8Kzl2n
+sEKze4R5+ruX/HLM6//dRs2Qbvf363ZfNhpxd38V3aO1MES6qFMpY9+KoHNCgqElpui+yO3OTNz68/F+
+RBqAX1oy8j3k4xA1lVKHbKckPaHaO4Tq9D2NTEKHOyVORqlBT1Qm4wDKh4vRuEOq0S/qi3f/AwsP7E4P
+Sw+X+ICz8SjutXmiv5piQc3pRCmMgYFLsjU1TnC7ML/+Rlb5Q8RJxrRwI4/Q5EidMIC4yh22Swn1uOFY
+/CtunHY+/nplfe3mQA8n1ms7Y/UGt8PcvTmZR2wQMKXK0Ov341bRqV83EnUYl8oIwvhW4IgktctNgwZ4
+eIo7zuqBPxqUpvfEAyoEPGN4iEIx4DQBedoFIUWxqSHAeYbist21vOFYJv1s9tMzOUiAPRTD4RTifaTj
+/Bv8WIai28nlVxyUilJmd7YbbQiU5oJCv3lXt9Nc5Ipyc4Qm+7qpiRr7Egw1OVa580HgEgwbJzfAtRem
+Cbd00+pRnsdO7ETlWUqLBF/bra/R4dfWmLbvemViTxG/UturdkvWQpbKSWkxiRoEgAvZhFZJeV+ZIUGx
+QNRjgOt0QZVAPc9K3xhpihrnV4jvdry5GFLMaPpelQ3xcrowMd4nio/79DpZUngR/iFY2OoGO1jJMFks
+9DkPs31ne6ngWLSN/lq+JZepLbS76/Etx+fkhc6apIgpRj3wh1F15Aw+k+s4XAsLDGDgBFFDZnlE00xw
+4idfAEabUok4RbVqA8O1IJnzwotQk9+A59ZeNETnbYAV4xmbd3XFbfVaUgimJDqdUfI9uoWsoH8tzwr3
+oM8W51XN4Zw=''')
 def license():
     return io.BytesIO(LICENSE)
 
@@ -217,11 +217,11 @@ def License_issue_valid():
         | base64
     '''
     expected = (
-        'bHteI3Cuc38CRVYw+DeBOYDtW8iGrnZnCQ4K1YC3O2o9vHTWwHd3CDRj2dVT17ox5TQcwT'
-        'K0QOcbtJVDOaBxTln+7K5TW0iujOaroQivQEoIPyq4ExzphhcoNSIHnVlm4uL81/ZKnWzi'
-        'nvDHcKAzwTppIIybhV0fivCQkUa+HIKgQ0GvCfph9fL+krJ9KW/LH8Z7JUpOO9b1BgZ9ai'
-        'JxnrJy13QillegpHOTaRSL2JvGs1smIyW4+gLFle4y0uj8LdScBcqHctkVQRuathgylOxl'
-        'QsOdDEM5c9shmWFgWmeQi+XpiZhE5kXt1oisrXXJ+bMbQ5nuFHT/SMFwLQ0JXg==')
+        'BwaJUYJTcY22EiC5x/qZQVMKGeIxAwTiIejRjrch2Q/uVoUrB1ptKRn1ffGgYs5zcagsj+'
+        '7YTi8bB8nim+W+ANy93WttNrgz5hl2k75D4hGmR3EGV+f45l91RYMdTHukuKZkA+agc/At'
+        '5ByHC8Qaw4+4Jdz2e0XJMJaR3aEAYIJ/5NDVKSHD2OjpGDLEc70QwdorUU10B4X2URasRK'
+        'HuRZTv9jVz2t4Mgk4wrJHiT/gw6sHbR1U7u7PbbnbQ8Xx/c37UL54jy9ZqM+j7yEhEXqPG'
+        'W5rXvj0IQmYrODLdyVzNMUa/ReC66oERy2JZA0aaFyY8lFr5V1yC1xT4r6yMnw==')
 
     assert_eq(
         expected,
@@ -267,7 +267,7 @@ def License_load_invalid_password():
 
 @test
 def License_load():
-    """Tests that License.load succeeds valid license data"""
+    """Tests that License.load succeeds with valid license data"""
     License.load(license(), b'valid password')
 
 

@@ -66,9 +66,9 @@ class LicenseData(object):
         return self._consumer_type
 
     @property
-    def information(self):
+    def info(self):
         """Generic information about this license"""
-        return self._information
+        return self._info
 
     @property
     def extra(self):
@@ -77,7 +77,7 @@ class LicenseData(object):
 
     def __init__(self, not_before, not_after, issued = None, issuer = None,
             holder = None, subject = None, consumer_type = None,
-            information = None, extra = None):
+            info = None, extra = None):
         """A class representing a license with a validity window and meta data.
 
         Any timestamps passed must be either instances of datetime.datetime, or
@@ -109,8 +109,8 @@ class LicenseData(object):
         :param str consumer_type: Free-form string data to associate with the
             license. This value will be stringified.
 
-        :param str information: Free-form string data to associate with the
-            license. This value will be stringified.
+        :param str info: Free-form string data to associate with the license.
+            This value will be stringified.
 
         :param object extra: Any type of data to store in the license. If this
             is not a string, it will be JSON serialised.
@@ -134,7 +134,7 @@ class LicenseData(object):
 
         self._subject = str(subject or '')
         self._consumer_type = str(consumer_type or '')
-        self._information = str(information or '')
+        self._info = str(info or '')
 
         if not isinstance(extra, str):
             self._extra = json.dumps(extra)
