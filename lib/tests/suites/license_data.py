@@ -188,48 +188,48 @@ def LicenseData_int_consumer_type():
 
 
 @test
-def LicenseData_string_information():
-    """Test LicenseData() for string information"""
-    expected = 'information'
+def LicenseData_string_info():
+    """Test LicenseData() for string info"""
+    expected = 'info'
 
     license = LicenseData(
         '2014-01-01T00:00:00',
         '2014-01-01T00:00:01',
-        information = expected)
-    assert_eq(expected, license.information)
+        info = expected)
+    assert_eq(expected, license.info)
 
 
 @test
-def LicenseData_empty_information():
-    """Test LicenseData() for no information"""
+def LicenseData_empty_info():
+    """Test LicenseData() for no info"""
     license = LicenseData(
         '2014-01-01T00:00:00',
         '2014-01-01T00:00:01')
-    assert_eq('', license.information)
+    assert_eq('', license.info)
 
 
 @test
-def LicenseData_string_information():
-    """Test LicenseData() for string information"""
-    expected = 'information'
+def LicenseData_string_info():
+    """Test LicenseData() for string info"""
+    expected = 'info'
 
     license = LicenseData(
         '2014-01-01T00:00:00',
         '2014-01-01T00:00:01',
-        information = expected)
-    assert_eq(expected, license.information)
+        info = expected)
+    assert_eq(expected, license.info)
 
 
 @test
-def LicenseData_int_information():
-    """Test LicenseData() for string information"""
+def LicenseData_int_info():
+    """Test LicenseData() for string info"""
     expected = '42'
 
     license = LicenseData(
         '2014-01-01T00:00:00',
         '2014-01-01T00:00:01',
-        information = int(expected))
-    assert_eq(expected, license.information)
+        info = int(expected))
+    assert_eq(expected, license.info)
 
 
 @test
@@ -271,7 +271,7 @@ def LicenseData_serialize():
                     '<string>CN=Unknown</string>'
                 '</object>'
             '</void>'
-            '<void property="information">'
+            '<void property="info">'
                 '<string>some information</string>'
             '</void>'
             '<void property="issued">'
@@ -305,7 +305,7 @@ def LicenseData_serialize():
             '2014-01-01T00:00:01',
             issuer = 'CN=issuer',
             subject = 'CN=subject',
-            information = 'some information',
+            info = 'some information',
             extra = {'hello': 'world'}))))
 
 
@@ -318,7 +318,7 @@ def LicenseData_deserialize():
         '2014-01-01T00:00:01',
         issuer = 'CN=issuer',
         subject = 'subject',
-        information = 'some information',
+        info = 'some information',
         extra = {'hello': 'world'})
     license_data2 = deserialize(serialize(license_data1))
     assert_eq(
@@ -337,8 +337,8 @@ def LicenseData_deserialize():
         license_data1.subject,
         license_data2.subject)
     assert_eq(
-        license_data1.information,
-        license_data2.information)
+        license_data1.info,
+        license_data2.info)
     assert_eq(
         license_data1.extra,
         license_data2.extra)
