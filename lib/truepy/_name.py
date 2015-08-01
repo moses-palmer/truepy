@@ -40,7 +40,8 @@ class Name(list):
         :return: an escaped string
         :rtype: str
         """
-        return ''.join('#%02X' % ord(c) if c in self.ESCAPABLES else c
+        return ''.join(
+            '#%02X' % ord(c) if c in self.ESCAPABLES else c
             for c in s)
 
     @classmethod
@@ -53,12 +54,12 @@ class Name(list):
         :return: an unescaped string
         :rtype: str
 
-        :raises ValueError: if an invalid escape is encountered; only characters
-            in `ESCAPABLES` are supported
+        :raises ValueError: if an invalid escape is encountered; only
+            characters in :attr:`ESCAPABLES` are supported
         """
         def replacer(m):
             char = chr(int(m.group(1), 16))
-            if not char in self.ESCAPABLES:
+            if char not in self.ESCAPABLES:
                 raise ValueError('invalid escape sequence: %s', m.group(0))
             return char
 
@@ -88,7 +89,8 @@ class Name(list):
             raise ValueError('invalid X509 name: %s', name)
 
     def __str__(self):
-        return ','.join('%s=%s' % (k, self.escape(v))
+        return ','.join(
+            '%s=%s' % (k, self.escape(v))
             for (k, v) in self)
 
 

@@ -25,12 +25,12 @@ from ._bean import bean_serializer, bean_deserializer, camel_to_snake, \
 
 
 @bean_serializer(bool)
-def str_serializer(value):
+def bool_serializer(value):
     return value_to_xml('true' if value else 'false', 'boolean')
 
 
 @bean_serializer(int)
-def str_serializer(value):
+def int_serializer(value):
     return value_to_xml(str(value), 'int')
 
 
@@ -41,15 +41,15 @@ def str_serializer(value):
 
 if sys.version_info.major < 3:
     @bean_serializer(unicode)
-    def str_serializer(value):
+    def str_serializer_py2_unicode(value):
         return value_to_xml(value, 'string')
 
 
 @bean_serializer(datetime)
 def datetime_serializer(v):
-    ms_since_epoch = int(
-        (v - datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z')).total_seconds()
-            * 1000)
+    timedelta_since_epoch = v \
+        - datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z')
+    ms_since_epoch = int(timedelta_since_epoch.total_seconds() * 1000)
     return value_to_xml(
         str(ms_since_epoch), 'long', 'java.util.Date')
 
@@ -90,27 +90,30 @@ def datetime_deserializer(element):
             and element.attrib.get('class', None) == 'java.util.Date':
         ms_since_epoch = int(element.find('.//long').text)
         return datetime.strptime('1970-01-01 UTC', '%Y-%m-%d %Z') + timedelta(
-            milliseconds = ms_since_epoch)
+            milliseconds=ms_since_epoch)
     else:
         raise UnknownFragmentException()
 
 
+#: A mapping from name to deserialiser class
 _DESERIALIZER_CLASSES = {}
+
 
 def default_bean_deserialize(self, element):
     """The default bean deserialiser for classes decorated with
     `@`:meth:`~truepy._bean_serializers.bean_class`.
 
     This function will call the constructor with all properties read from
-    element as named arguments. If this fails with `TypeError`, it will call the
-    empty constructor and then set all properties.
+    element as named arguments. If this fails with `TypeError`, it will call
+    the empty constructor and then set all properties.
 
     :param xml.etree.ElementTree.Element element: The XML fragment to
         deserialise.
     :return: an object
     :rtype: self
     """
-    properties = {camel_to_snake(e.attrib['property']): deserialize(e[0])
+    properties = {
+        camel_to_snake(e.attrib['property']): deserialize(e[0])
         for e in element.findall('.//void')}
 
     try:
@@ -122,6 +125,7 @@ def default_bean_deserialize(self, element):
     for name, value in properties.iteritems():
         setattr(result, name, value)
     return result
+
 
 def bean_class(class_name):
     """Marks a class as deserialisable and sets its class name.
@@ -145,6 +149,7 @@ def bean_class(class_name):
 
     return inner
 
+
 @bean_deserializer
 def object_deserializer(element):
     """Deserialises XML for registered bean classes.
@@ -154,7 +159,8 @@ def object_deserializer(element):
     A class is registered by decorating it with `@`:meth:`~bean_class`.
     """
     try:
-        return _DESERIALIZER_CLASSES[element.attrib['class']]._bean_deserialize(
+        deserializer_class = _DESERIALIZER_CLASSES[element.attrib['class']]
+        return deserializer_class._bean_deserialize(
             element)
     except KeyError:
         raise UnknownFragmentException()
