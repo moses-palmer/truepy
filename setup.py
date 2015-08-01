@@ -2,6 +2,7 @@
 # coding: utf8
 
 import os
+import setuptools
 import sys
 sys.path.append('.')
 
@@ -14,39 +15,35 @@ PACKAGE_DIR = {
 def setup(**kwargs):
     global INFO, README, CHANGES, PACKAGE_DATA, PACKAGE_DIR
     setuptools.setup(
-        name = 'truepy',
-        version = '.'.join(str(i) for i in INFO['version']),
-        description = ''
-            'A Python library to create TrueLicense license files.',
-        long_description = README + '\n\n' + CHANGES,
+        name='truepy',
+        version='.'.join(str(i) for i in INFO['version']),
+        description='A Python library to create TrueLicense license files.',
+        long_description=README + '\n\n' + CHANGES,
 
-        install_requires = [
+        install_requires=[
             'pycrypto >=2.6.1',
             'pyOpenSSL >=0.14'],
-        setup_requires = [],
+        setup_requires=[],
 
-        author = INFO['author'],
-        author_email = 'moses.palmer@gmail.com',
+        author=INFO['author'],
+        author_email='moses.palmer@gmail.com',
 
-        url = 'https://github.com/moses-palmer/truepy',
+        url='https://github.com/moses-palmer/truepy',
 
-        packages = setuptools.find_packages(
+        packages=setuptools.find_packages(
             os.path.join(
                 os.path.dirname(__file__),
                 'lib')),
-        package_dir = PACKAGE_DIR,
-        zip_safe = True,
+        package_dir=PACKAGE_DIR,
+        zip_safe=True,
 
-        test_suite = 'tests',
+        test_suite='tests',
 
-        license = 'GPLv3',
-        platforms = ['linux', 'windows'],
-        classifiers = [],
+        license='GPLv3',
+        platforms=['linux', 'windows'],
+        classifiers=[],
 
         **kwargs)
-
-
-import setuptools
 
 
 # Read globals from truepy._info without loading it
@@ -71,7 +68,6 @@ try:
             os.path.dirname(__file__),
             'README.rst')) as f:
         README = f.read()
-
 
     # Read CHANGES
     with open(os.path.join(

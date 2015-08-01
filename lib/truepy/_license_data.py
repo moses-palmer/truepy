@@ -74,14 +74,14 @@ class LicenseData(object):
         """The license extra data"""
         return self._extra
 
-    def __init__(self, not_before, not_after, issued = None, issuer = None,
-            holder = None, subject = None, consumer_type = None,
-            info = None, extra = None):
+    def __init__(self, not_before, not_after, issued=None, issuer=None,
+                 holder=None, subject=None, consumer_type=None, info=None,
+                 extra=None):
         """A class representing a license with a validity window and meta data.
 
         Any timestamps passed must be either instances of datetime.datetime, or
-        strings parsable by License.TIMESTAMP_FORMAT; the timezone is assumed to
-        be UTC.
+        strings parsable by License.TIMESTAMP_FORMAT; the timezone is assumed
+        to be UTC.
 
         :param not_before: The timestamp when this license starts to be valid.
         :type not_before: datetime.datetime or str
@@ -90,8 +90,8 @@ class LicenseData(object):
             This must be strictly after `not_before`.
         :type not_after: datetime.datetime or str
 
-        :param issued: The timestamp when this license was issued. This defaults
-            to not_before.
+        :param issued: The timestamp when this license was issued. This
+            defaults to not_before.
         :type issued: datetime.datetime or str
 
         :param issuer: The issuer of this certificate. If not specified,
@@ -102,8 +102,8 @@ class LicenseData(object):
             UNKNOWN_NAME will be used.
         :type issuer: truepy.Name or str
 
-        :param str subject: Free-form string data to associate with the license.
-            This value will be stringified.
+        :param str subject: Free-form string data to associate with the
+            license. This value will be stringified.
 
         :param str consumer_type: Free-form string data to associate with the
             license. This value will be stringified.
@@ -118,14 +118,17 @@ class LicenseData(object):
             if isinstance(v, datetime):
                 return v
             else:
-                return datetime.strptime(v + ' UTC',
+                return datetime.strptime(
+                    v + ' UTC',
                     self.TIMESTAMP_FORMAT + ' %Z')
 
         self._not_before = timestamp(not_before)
         self._not_after = timestamp(not_after)
         if self._not_before >= self._not_after:
-            raise ValueError('%s is not before %s',
-                self._not_before, self._not_after)
+            raise ValueError(
+                '%s is not before %s',
+                self._not_before,
+                self._not_after)
         self._issued = timestamp(issued or not_before)
 
         self._issuer = Name(str(issuer or self.UNKNOWN_NAME))

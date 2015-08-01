@@ -23,8 +23,8 @@ from . import tostring
 def snake_to_camel(s):
     """Converts snake_case to camelCase.
 
-    Consecutive underscores in the input will be treated as a single underscore.
-    Trailing underscores will be discarded.
+    Consecutive underscores in the input will be treated as a single
+    underscore. Trailing underscores will be discarded.
 
     :param str s: The snake case string to transform.
 
@@ -58,7 +58,7 @@ def camel_to_snake(s):
     return ''.join(characters())
 
 
-def value_to_xml(value, tag_name, class_name = None):
+def value_to_xml(value, tag_name, class_name=None):
     """Serialises a value.
 
     The XML will be
@@ -81,14 +81,16 @@ def value_to_xml(value, tag_name, class_name = None):
         o = ElementTree.Element(tag_name)
         o.text = value
     else:
-        o = ElementTree.Element('object', attrib = {
+        o = ElementTree.Element('object', attrib={
             'class': class_name})
         o.append(value_to_xml(value, tag_name))
 
     return o
 
 
+#: A mapping of serialiser name to serialiser
 _SERIALIZERS = {}
+
 
 def bean_serializer(*value_types):
     """Marks a function as a serialiser for a specific type.
@@ -112,8 +114,8 @@ def _serialize_object(value):
 
     The object must have the attribute 'bean_class'.
 
-    All properties of the object are wrapped in <void property="(name)"></void>,
-    and must thus themselves be serialisable.
+    All properties of the object are wrapped in
+    <void property="(name)"></void>, and must thus themselves be serialisable.
 
     :param object value: The value to serialise.
 
@@ -125,15 +127,16 @@ def _serialize_object(value):
     except AttributeError:
         raise ValueError('unknown Java class')
 
-    property_names = sorted(k
+    property_names = sorted(
+        k
         for k, v in o.__class__.__dict__.items()
         if isinstance(getattr(o.__class__, k), property))
 
-    java_wrapper = ElementTree.Element('java', attrib = {
+    java_wrapper = ElementTree.Element('java', attrib={
         'version': '1.0',
         'class': 'java.beans.XMLDecoder'})
 
-    container = ElementTree.SubElement(java_wrapper, 'object', attrib = {
+    container = ElementTree.SubElement(java_wrapper, 'object', attrib={
         'class': class_name})
     for property_name in property_names:
         container.append(
@@ -165,15 +168,16 @@ def serialize(value):
     except AttributeError:
         raise ValueError('unknown Java class for %s', type(value))
 
-    property_names = sorted(k
+    property_names = sorted(
+        k
         for k, v in value.__class__.__dict__.items()
         if isinstance(getattr(value.__class__, k), property))
 
-    xml = ElementTree.Element('object', attrib = {
+    xml = ElementTree.Element('object', attrib={
         'class': class_name})
     for property_name in property_names:
         property_value = serialize(getattr(value, property_name))
-        property_container = ElementTree.SubElement(xml, 'void', attrib = {
+        property_container = ElementTree.SubElement(xml, 'void', attrib={
             'property': snake_to_camel(property_name)})
         property_container.append(property_value)
 
@@ -194,7 +198,7 @@ def to_document(e):
     return (
         '<?xml version="1.0" encoding="utf-8"?>'
         '<java version="1.0" class="java.beans.XMLDecoder">'
-            '%s'
+        '%s'
         '</java>') % tostring(e)
 
 
@@ -204,7 +208,10 @@ class UnknownFragmentException(Exception):
     """
     pass
 
+
+#: A mapping from deserialiser name to deserialiser
 _DESERIALIZERS = []
+
 
 def bean_deserializer(f):
     """Marks a function as a deserialiser.
@@ -223,7 +230,8 @@ def deserialize(element):
     The value type must have a serialiser registered, or be an object with the
     attribute 'bean_class' whose properties can be serialised with serialize.
 
-    :param xml.etree.ElementTree.Element element: The XML fragment to serialise.
+    :param xml.etree.ElementTree.Element element: The XML fragment to
+        serialise.
 
     :return: a value
     :rtype: object

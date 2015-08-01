@@ -61,7 +61,9 @@ class License(object):
     @property
     def signature_algorithm(self):
         """The signature algorithm used to sign"""
-        return '%swith%s' % (self._signature_digest, self._signature_encryption)
+        return '%swith%s' % (
+            self._signature_digest,
+            self._signature_encryption)
 
     @property
     def signature_encoding(self):
@@ -73,8 +75,8 @@ class License(object):
         if value != self.SIGNATURE_ENCODING:
             raise ValueError('invalid signature encoding: %s', value)
 
-    def __init__(self, encoded, signature, signature_algorithm = 'SHA1withRSA',
-            signature_encoding = SIGNATURE_ENCODING):
+    def __init__(self, encoded, signature, signature_algorithm='SHA1withRSA',
+                 signature_encoding=SIGNATURE_ENCODING):
         """A class representing a signed license.
 
         :param str encoded: The encoded license data.
@@ -104,12 +106,13 @@ class License(object):
             self._signature_digest, self._signature_encryption = \
                 signature_algorithm.split('with')
         except ValueError:
-            raise ValueError('invalid signature algorithm: %s',
+            raise ValueError(
+                'invalid signature algorithm: %s',
                 signature_algorithm)
         self.signature_encoding = signature_encoding
 
     @classmethod
-    def issue(self, certificate, key, digest = 'SHA1', **license_data):
+    def issue(self, certificate, key, digest='SHA1', **license_data):
         """Issues a new License.
 
         :param OpenSSL.crypto.X509 certificate: The issuer certificate.
@@ -118,10 +121,10 @@ class License(object):
 
         :param str digest: The digest algorithm to use.
 
-        :param license_data: Parameters to pass on to truepy.LicenseData. Do not
-            pass issuer; this value will be read from the certificate subject.
-            You may also specify the single value license_data; this must in
-            that case be an instance of :class:`~truepy.LicenseData`.
+        :param license_data: Parameters to pass on to truepy.LicenseData. Do
+            not pass issuer; this value will be read from the certificate
+            subject. You may also specify the single value license_data; this
+            must in that case be an instance of :class:`~truepy.LicenseData`.
 
         :raises ValueError: if license data cannot be created from the keyword
             arguments or if the issuer name is passed
@@ -183,8 +186,8 @@ class License(object):
             raise self.InvalidSignatureException(e)
 
     @classmethod
-    def _key_iv(self, password, salt = _SALT, iterations = _ITERATIONS,
-            digest = _DIGEST, key_size = _KEY_SIZE):
+    def _key_iv(self, password, salt=_SALT, iterations=_ITERATIONS,
+                digest=_DIGEST, key_size=_KEY_SIZE):
         """Derives a key from a password.
 
         The default values will generate a key and IV for DES encryption
@@ -225,11 +228,13 @@ class License(object):
         """
         if sys.version_info.major < 3:
             padding_length = ord(data[-1])
-            is_valid = all(ord(d) == padding_length
+            is_valid = all(
+                ord(d) == padding_length
                 for d in data[-padding_length:])
         else:
             padding_length = data[-1]
-            is_valid = all(d == padding_length
+            is_valid = all(
+                d == padding_length
                 for d in data[-padding_length:])
         if not is_valid:
             raise self.InvalidPasswordException('invalid PKCS#5 padding')
@@ -237,7 +242,7 @@ class License(object):
         return data[:-padding_length]
 
     @classmethod
-    def _pad(self, data, block_size = BLOCK_SIZE):
+    def _pad(self, data, block_size=BLOCK_SIZE):
         """Adds PKCS#5 1.5 padding to data.
 
         :param bytes data: The data to pad.
@@ -254,7 +259,8 @@ class License(object):
             return data + ''.join(
                 [chr(block_size - len(data) % block_size)] * padding_length)
         else:
-            return data + bytes(padding_length
+            return data + bytes(
+                padding_length
                 for i in range(block_size - len(data) % block_size))
 
     @classmethod
@@ -276,9 +282,9 @@ class License(object):
         # Initialise cryptography
         key, iv = self._key_iv(password)
         des = DES.new(
-            key = key,
-            IV = iv,
-            mode = DES.MODE_CBC)
+            key=key,
+            IV=iv,
+            mode=DES.MODE_CBC)
 
         # Decrypt the input stream
         encrypted_data = f.read()
@@ -286,7 +292,7 @@ class License(object):
 
         # Decompress and parse the XML
         decrypted_stream = io.BytesIO(decrypted_data)
-        with gzip.GzipFile(fileobj = decrypted_stream, mode = 'r') as gz:
+        with gzip.GzipFile(fileobj=decrypted_stream, mode='r') as gz:
             xml_data = gz.read()
 
         # Use the first child of the top-level java element
@@ -304,9 +310,9 @@ class License(object):
         # Initialise cryptography
         key, iv = self._key_iv(password)
         des = DES.new(
-            key = key,
-            IV = iv,
-            mode = DES.MODE_CBC)
+            key=key,
+            IV=iv,
+            mode=DES.MODE_CBC)
 
         # Serialize the license
         xml_data = to_document(serialize(self)) if sys.version_info.major < 3 \
@@ -314,7 +320,7 @@ class License(object):
 
         # Compress the XML
         compressed_stream = io.BytesIO()
-        with gzip.GzipFile(fileobj = compressed_stream, mode = 'w') as gz:
+        with gzip.GzipFile(fileobj=compressed_stream, mode='w') as gz:
             gz.write(xml_data)
         compressed_data = compressed_stream.getvalue()
 

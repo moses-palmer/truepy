@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import getpass
+import sys
+
 import OpenSSL
 
 from . import License, LicenseData
@@ -23,14 +27,17 @@ from . import License, LicenseData
 def main(action, action_arguments, **args):
     try:
         action(*action_arguments, **args)
-    except TypeError as e:
-        raise RuntimeError('%s requires additional arguments',
+    except TypeError:
+        raise RuntimeError(
+            '%s requires additional arguments',
             action.__name__)
 
     return 0
 
 
 ACTIONS = {}
+
+
 def action(f):
     ACTIONS[f.__name__] = f
     return f
@@ -39,14 +46,14 @@ def action(f):
 @action
 def show(license_file, issuer_certificate, license_file_password, **args):
     """show [license file]
-    Verifies the signature of a license file and shows information about it. You
-    must specify the issuer certificate as --issuer-certificate on the command
-    line, and the license file password as --license-file-password.
+    Verifies the signature of a license file and shows information about it.
+    You must specify the issuer certificate as --issuer-certificate on the
+    command line, and the license file password as --license-file-password.
     """
     with open(license_file, 'rb') as f:
         try:
             license = License.load(f, license_file_password)
-        except Exception as e:
+        except Exception:
             raise RuntimeError('Failed to load license file')
 
     try:
@@ -59,23 +66,27 @@ def show(license_file, issuer_certificate, license_file_password, **args):
     print('\tissued to:\t"%s"' % str(license.data.holder))
     print('\tvalid from:\t%s' % str(license.data.not_before))
     print('\tvalid to:\t%s' % str(license.data.not_after))
-    print('\tsubject:\t%s' % ('"%s"' % license.data.subject
+    print('\tsubject:\t%s' % (
+        '"%s"' % license.data.subject
         if license.data.subject
         else '<none>'))
-    print('\tconsumer_type:\t%s' % ('"%s"' % license.data.consumer_type
+    print('\tconsumer_type:\t%s' % (
+        '"%s"' % license.data.consumer_type
         if license.data.consumer_type
         else '<none>'))
-    print('\tinformation:\t%s' % ('"%s"' % license.data.information
+    print('\tinformation:\t%s' % (
+        '"%s"' % license.data.information
         if license.data.information
         else '<none>'))
-    print('\textra data:\t%s' % ('"%s"' % license.data.extra
+    print('\textra data:\t%s' % (
+        '"%s"' % license.data.extra
         if license.data.extra
         else '<none>'))
 
 
 @action
 def issue(license_file, license_description, issuer_certificate, issuer_key,
-    license_file_password, **args):
+          license_file_password, **args):
     """issue [license file] [license description]
     Issues a new license and shows information about it. You must specify the
     issuer certificate and key as --issuer-certificate/key on the command line,
@@ -90,32 +101,30 @@ def issue(license_file, license_description, issuer_certificate, issuer_key,
             (p.strip() for p in i.split('=', 1))
             for i in license_description.split(','))
     except:
-        raise RuntimeError('Invalid license data description: %s',
+        raise RuntimeError(
+            'Invalid license data description: %s',
             license_description)
 
     try:
         license_data = LicenseData(**license_data_parameters)
     except TypeError:
-        raise RuntimeError('Incomplete license data description: %s',
+        raise RuntimeError(
+            'Incomplete license data description: %s',
             license_description)
 
     license = License.issue(issuer_certificate, issuer_key,
-        license_data = license_data)
+                            license_data=license_data)
     with open(license_file, 'wb') as f:
         license.store(f, license_file_password)
 
     show(license_file, issuer_certificate, license_file_password)
 
 
-import argparse
-import getpass
-import sys
-
-
 class PasswordAction(argparse.Action):
-    def __call__(self, parser, namespace, value, option_string = None):
+    def __call__(self, parser, namespace, value, option_string=None):
         password = value[-1] if isinstance(value, list) else value
-        destination = ' '.join(s
+        destination = ' '.join(
+            s
             for s in self.dest.split('_')
             if not s == 'password')
         if password == '-':
@@ -129,7 +138,7 @@ class PasswordAction(argparse.Action):
 
 
 class CertificateAction(argparse.Action):
-    def __call__(self, parser, namespace, value, option_string = None):
+    def __call__(self, parser, namespace, value, option_string=None):
         with open(value, 'rb') as f:
             data = f.read()
         certificate = None
@@ -143,7 +152,8 @@ class CertificateAction(argparse.Action):
             except:
                 pass
         if certificate is None:
-            raise argparse.ArgumentError(self,
+            raise argparse.ArgumentError(
+                self,
                 'Failed to load certificate')
         else:
             setattr(namespace, self.dest, certificate)
@@ -153,59 +163,68 @@ class KeyAction(PasswordAction):
     def get_value(self, value, password):
         with open(value[0], 'rb') as f:
             data = f.read()
-        key = None
         for file_type in (
                 OpenSSL.crypto.FILETYPE_PEM,
                 OpenSSL.crypto.FILETYPE_ASN1):
             try:
-                return OpenSSL.crypto.load_privatekey(file_type, data, password)
+                return OpenSSL.crypto.load_privatekey(
+                    file_type, data, password)
             except:
                 pass
-        raise argparse.ArgumentError(self,
+        raise argparse.ArgumentError(
+            self,
             'Failed to load key')
 
 
 class ActionAction(argparse.Action):
-    def __call__(self, parser, namespace, value, option_string = None):
+    def __call__(self, parser, namespace, value, option_string=None):
         try:
             action = ACTIONS[value[0]]
         except KeyError:
-            raise argparse.ArgumentError(self,
+            raise argparse.ArgumentError(
+                self,
                 'Unknown action')
         setattr(namespace, self.dest, action)
 
 
-parser = argparse.ArgumentParser(prog = 'truepy', description =
-    'Creates and verifies TrueLicense version 1 licenses',
-    formatter_class = argparse.RawDescriptionHelpFormatter,
-    epilog = 'Actions\n=======\n%s' % ('\n\n'.join(
-        action.__doc__ for action in ACTIONS.values())))
+parser = argparse.ArgumentParser(
+    prog='truepy',
+    description='Creates and verifies TrueLicense version 1 licenses',
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    epilog='Actions\n=======\n%s' % (
+        '\n\n'.join(action.__doc__ for action in ACTIONS.values())))
 
-parser.add_argument('--issuer-certificate', help =
-    'The issuer certificate.',
-    action = CertificateAction)
+parser.add_argument(
+    '--issuer-certificate',
+    help='The issuer certificate.',
+    action=CertificateAction)
 
-parser.add_argument('--issuer-key', help =
-    'The private key to the certificate and the password; pass "-" as password '
-    'to read it from stdin.',
-    nargs = 2,
-    const = None,
-    action = KeyAction)
+parser.add_argument(
+    '--issuer-key',
+    help='The private key to the certificate and the password; pass "-" as '
+    'password to read it from stdin.',
+    nargs=2,
+    const=None,
+    action=KeyAction)
 
-parser.add_argument('--license-file-password', help =
-    'The password of the license file; pass "-" to read from stdin.',
-    const = None,
-    action = PasswordAction)
+parser.add_argument(
+    '--license-file-password',
+    help='The password of the license file; pass "-" to read from stdin.',
+    const=None,
+    action=PasswordAction)
 
-parser.add_argument('action', help =
-    'The action to perform; this can be any of %s' % ', '.join(ACTIONS.keys()),
-    nargs = 1,
-    action = ActionAction)
+parser.add_argument(
+    'action',
+    help='The action to perform; this can be any of %s' % ', '.join(
+        ACTIONS.keys()),
+    nargs=1,
+    action=ActionAction)
 
-parser.add_argument('action_arguments', help =
-    'Arguments to the action. See below for more information.',
-    nargs = '*',
-    default = [])
+parser.add_argument(
+    'action_arguments',
+    help='Arguments to the action. See below for more information.',
+    nargs='*',
+    default=[])
 
 try:
     sys.exit(main(**vars(parser.parse_args())))
