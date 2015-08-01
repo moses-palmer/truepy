@@ -3,6 +3,7 @@
 
 import os
 import sys
+sys.path.append('.')
 
 
 # The directories in which the packages can be found
@@ -35,6 +36,8 @@ def setup(**kwargs):
                 'lib')),
         package_dir = PACKAGE_DIR,
         zip_safe = True,
+
+        test_suite = 'tests',
 
         license = 'GPLv3',
         platforms = ['linux', 'windows'],
