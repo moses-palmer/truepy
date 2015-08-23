@@ -12,6 +12,11 @@ PACKAGE_DIR = {
     'truepy': 'lib/truepy'}
 
 
+REQUIREMENTS = [
+    'pycrypto >=2.6.1',
+    'pyOpenSSL >=0.14']
+
+
 def setup(**kwargs):
     global INFO, README, CHANGES, PACKAGE_DATA, PACKAGE_DIR
     setuptools.setup(
@@ -20,10 +25,8 @@ def setup(**kwargs):
         description='A Python library to create TrueLicense license files.',
         long_description=README + '\n\n' + CHANGES,
 
-        install_requires=[
-            'pycrypto >=2.6.1',
-            'pyOpenSSL >=0.14'],
-        setup_requires=[],
+        install_requires=REQUIREMENTS,
+        setup_requires=REQUIREMENTS,
 
         author=INFO['author'],
         author_email='moses.palmer@gmail.com',
