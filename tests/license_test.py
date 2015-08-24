@@ -178,9 +178,9 @@ class LicenseTest(unittest.TestCase):
 
     @property
     def certificate(self):
-        CERTIFICATE = '\n'.join(
+        return b'\n'.join(
             line.strip()
-            for line in '\n'r'''
+            for line in b'''
             -----BEGIN CERTIFICATE-----
             MIIDuTCCAqGgAwIBAgIJAKSXrdRuO5qWMA0GCSqGSIb3DQEBCwUAMHMxCzAJBgNV
             BAYTAlhYMRMwEQYDVQQIDApTb21lLVN0YXRlMRQwEgYDVQQHDAtNYWRldXB2aWxs
@@ -204,15 +204,12 @@ class LicenseTest(unittest.TestCase):
             jpLCDa3fceUjfLs1utsf8iG6Iwbol1imGqzqyt1zA4H7l+QPgANqJ+Er9i5K
             -----END CERTIFICATE-----'''.splitlines()
             if line.strip())
-        return OpenSSL.crypto.load_certificate(
-            OpenSSL.crypto.FILETYPE_PEM,
-            CERTIFICATE)
 
     @property
     def other_certificate(self):
-        OTHER_CERTIFICATE = '\n'.join(
+        return b'\n'.join(
             line.strip()
-            for line in '\n'r'''
+            for line in b'''
             -----BEGIN CERTIFICATE-----
             MIIDpTCCAo2gAwIBAgIJAMkGafbVKrk8MA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
             BAYTAlhYMRMwEQYDVQQIDApTb21lLVN0YXRlMRQwEgYDVQQHDAtNYWxpY2V2aWxs
@@ -236,15 +233,12 @@ class LicenseTest(unittest.TestCase):
             BSKMnCK+8l9gBOZpxrPfGQMUxyvdUpZjbg==
             -----END CERTIFICATE-----'''.splitlines()
             if line.strip())
-        return OpenSSL.crypto.load_certificate(
-            OpenSSL.crypto.FILETYPE_PEM,
-            OTHER_CERTIFICATE)
 
     @property
     def key(self):
-        KEY = '\n'.join(
+        KEY = b'\n'.join(
             line.strip()
-            for line in '\n'r'''
+            for line in b'''
             -----BEGIN ENCRYPTED PRIVATE KEY-----
             MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIlhgdHbcx56QCAggA
             MBQGCCqGSIb3DQMHBAgl6ynGQoUxNQSCBMh24HR44SbY5y5U8f1NhBntEhM4XneA
@@ -283,7 +277,7 @@ class LicenseTest(unittest.TestCase):
 
     @property
     def license(self):
-        LICENSE = base64.b64decode(r'''
+        LICENSE = base64.b64decode(b'''
             r2dGlsYH1NaZnCjH6Gy2Lu3RicQuR0uu9el7rguz5ZE1eix3edK+lrYMeLyiVa88
             2v3rtGs1LtdyBvzP+4rcDmbzspIreKG8oGdw8E0j9bbS1ZfplIRo38+T63LLzoSi
             8kI2SAFZY9ZbCWTYhu2Vw7tPae8Kzl2nsEKze4R5+ruX/HLM6//dRs2Qbvf363Zf
