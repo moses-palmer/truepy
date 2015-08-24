@@ -38,7 +38,7 @@ class LicenseDataTest(unittest.TestCase):
         license = LicenseData(
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01')
-        self.assertEquals(license.issued, license.not_before)
+        self.assertEqual(license.issued, license.not_before)
 
     def test_issued_specified(self):
         """Test LicenseData.issued for specified issued value"""
@@ -46,7 +46,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             '2014-01-01T00:00:01')
-        self.assertEquals(license.issued, license.not_after)
+        self.assertEqual(license.issued, license.not_after)
 
     def test_invalid_timestamps(self):
         """Test LicenseData() for invalid timestamps"""
@@ -76,8 +76,8 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             issuer=name)
-        self.assertEquals(expected, license.issuer)
-        self.assertEquals(unknown, license.holder)
+        self.assertEqual(expected, license.issuer)
+        self.assertEqual(unknown, license.holder)
 
     def test_valid_holder(self):
         """Test LicenseData() for valid holder"""
@@ -89,8 +89,8 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             holder=name)
-        self.assertEquals(unknown, license.issuer)
-        self.assertEquals(expected, license.holder)
+        self.assertEqual(unknown, license.issuer)
+        self.assertEqual(expected, license.holder)
 
     def test_invalid_names(self):
         """Test LicenseData() for invalid names"""
@@ -110,7 +110,7 @@ class LicenseDataTest(unittest.TestCase):
         license = LicenseData(
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01')
-        self.assertEquals('', license.subject)
+        self.assertEqual('', license.subject)
 
     def test_string_subject(self):
         """Test LicenseData() for string subject"""
@@ -120,7 +120,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             subject=expected)
-        self.assertEquals(expected, license.subject)
+        self.assertEqual(expected, license.subject)
 
     def test_int_subject(self):
         """Test LicenseData() for string subject"""
@@ -130,14 +130,14 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             subject=int(expected))
-        self.assertEquals(expected, license.subject)
+        self.assertEqual(expected, license.subject)
 
     def test_empty_consumer_type(self):
         """Test LicenseData() for no consumer_type"""
         license = LicenseData(
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01')
-        self.assertEquals('', license.consumer_type)
+        self.assertEqual('', license.consumer_type)
 
     def test_string_consumer_type(self):
         """Test LicenseData() for string consumer_type"""
@@ -147,7 +147,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             consumer_type=expected)
-        self.assertEquals(expected, license.consumer_type)
+        self.assertEqual(expected, license.consumer_type)
 
     def test_int_consumer_type(self):
         """Test LicenseData() for string consumer_type"""
@@ -157,7 +157,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             consumer_type=int(expected))
-        self.assertEquals(expected, license.consumer_type)
+        self.assertEqual(expected, license.consumer_type)
 
     def test_string_info(self):
         """Test LicenseData() for string info"""
@@ -167,14 +167,14 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             info=expected)
-        self.assertEquals(expected, license.info)
+        self.assertEqual(expected, license.info)
 
     def test_empty_info(self):
         """Test LicenseData() for no info"""
         license = LicenseData(
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01')
-        self.assertEquals('', license.info)
+        self.assertEqual('', license.info)
 
     def test_int_info(self):
         """Test LicenseData() for string info"""
@@ -184,7 +184,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             info=int(expected))
-        self.assertEquals(expected, license.info)
+        self.assertEqual(expected, license.info)
 
     def test_string_extra(self):
         """Test LicenseData() for string extra data"""
@@ -194,7 +194,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             extra=expected)
-        self.assertEquals(expected, license.extra)
+        self.assertEqual(expected, license.extra)
 
     def test_list_extra(self):
         """Test LicenseData() for list extra data"""
@@ -205,7 +205,7 @@ class LicenseDataTest(unittest.TestCase):
             '2014-01-01T00:00:00',
             '2014-01-01T00:00:01',
             extra=extra)
-        self.assertEquals(expected, license.extra)
+        self.assertEqual(expected, license.extra)
 
     def test_serialize(self):
         """Tests that a LicenseData can be serialised to XML"""
@@ -247,7 +247,7 @@ class LicenseDataTest(unittest.TestCase):
             '<string>CN=subject</string>'
             '</void>'
             '</object>'))
-        self.assertEquals(
+        self.assertEqual(
             expected,
             tostring(serialize(LicenseData(
                 '2014-01-01T00:00:00',
@@ -269,24 +269,24 @@ class LicenseDataTest(unittest.TestCase):
             info='some information',
             extra={'hello': 'world'})
         license_data2 = deserialize(serialize(license_data1))
-        self.assertEquals(
+        self.assertEqual(
             license_data1.not_before,
             license_data2.not_before)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.not_after,
             license_data2.not_after)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.issued,
             license_data2.issued)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.issuer,
             license_data2.issuer)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.subject,
             license_data2.subject)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.info,
             license_data2.info)
-        self.assertEquals(
+        self.assertEqual(
             license_data1.extra,
             license_data2.extra)
