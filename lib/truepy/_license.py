@@ -117,7 +117,7 @@ class License(object):
 
         :param OpenSSL.crypto.X509 certificate: The issuer certificate.
 
-        :param bytes key: The private key of the certificate.
+        :param key: The private key of the certificate.
 
         :param str digest: The digest algorithm to use.
 
@@ -216,7 +216,7 @@ class License(object):
 
     @classmethod
     def _unpad(self, data):
-        """ Removes PKCS#5 1.5 padding from data.
+        """ Removes PKCS#5 1.5 padding from ``data``.
 
         :param bytes data: The data to unpad.
 
@@ -243,7 +243,7 @@ class License(object):
 
     @classmethod
     def _pad(self, data, block_size=BLOCK_SIZE):
-        """Adds PKCS#5 1.5 padding to data.
+        """Adds PKCS#5 1.5 padding to ``data``.
 
         :param bytes data: The data to pad.
 
@@ -305,7 +305,7 @@ class License(object):
         :param f: The data stream.
         :type f: file or stream
 
-        :param bytes password: The password used by the license application.
+        :param bytes password: The password used by the licensed application.
         """
         # Initialise cryptography
         key, iv = self._key_iv(password)
