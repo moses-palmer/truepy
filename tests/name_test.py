@@ -17,11 +17,46 @@
 
 import unittest
 
+import cryptography.hazmat.backends as backends
+import cryptography.x509
+
 from truepy import Name, tostring
 from truepy._bean import serialize
 
 
 class NameTest(unittest.TestCase):
+    @property
+    def certificate(self):
+        CERTIFICATE = b'\n'.join(
+            line.strip()
+            for line in b'''
+            -----BEGIN CERTIFICATE-----
+            MIIDuTCCAqGgAwIBAgIJAKSXrdRuO5qWMA0GCSqGSIb3DQEBCwUAMHMxCzAJBgNV
+            BAYTAlhYMRMwEQYDVQQIDApTb21lLVN0YXRlMRQwEgYDVQQHDAtNYWRldXB2aWxs
+            ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMRYwFAYDVQQLDA1M
+            b2FmaW5nIGRlcHQuMB4XDTE0MDUxMjA3MDk0M1oXDTQxMDkyNzA3MDk0M1owczEL
+            MAkGA1UEBhMCWFgxEzARBgNVBAgMClNvbWUtU3RhdGUxFDASBgNVBAcMC01hZGV1
+            cHZpbGxlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQxFjAUBgNV
+            BAsMDUxvYWZpbmcgZGVwdC4wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+            AQDV1Y9uDboYcKbPxyQ6zQOqCrIO9omiXd9zhem8U+RANrgmC5wuImwsJkt5jovA
+            pD1Qyw24gZrQxag2jn1KV1x8TBPz4iE7LWQ3MGbpw19aOJyiynLcu7AKwAN5TLi6
+            GVnoQOWCVRmXzc3aQo7YeF2pIBPdS1zTm52FWKQG8P+019rdwDNEgFpl3NJw+75O
+            iDwPoskzGiF5IvjWrzdbU9DcE3T8wMw11XyT6SCACmkjWB1DTLugvLvVX3crfVMs
+            jdcWBEywp46UyyioZWKG/oTSawfYqZXBMGWKCkhK/R/gEQ3bdY9I/9hEasQ+6nE8
+            WHwBS0Ilci4w9whE8v/00nefAgMBAAGjUDBOMB0GA1UdDgQWBBTH8td6Ja9k3OpQ
+            mbM3prSOummUIzAfBgNVHSMEGDAWgBTH8td6Ja9k3OpQmbM3prSOummUIzAMBgNV
+            HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQB0ZM38ACp+/y+PvQSQk/BSXkfs
+            L5DjoTj/YPGprs09gF1QRF5oxsrT8aS5E5jrn2GRWCq1jjEx+uH+w/6c1tF6El18
+            N6RlgNJLctC7fDTAOuoFk8OXeNJ1vN24t4JqLN06FS62eL1s+LQMaThto2oXNicn
+            94ywFwXRjI1ChWUbFqvJQ4ycMyBABujXkm5VtVbzXyfJL+FfqhJhljqNfvXeCWbO
+            9O8AWMLa8JqUjGO3Cej4nfVbkKhLE+xg/18K4WAAsq154wCe0sr2MlwR8k/cLlCL
+            jpLCDa3fceUjfLs1utsf8iG6Iwbol1imGqzqyt1zA4H7l+QPgANqJ+Er9i5K
+            -----END CERTIFICATE-----'''.splitlines()
+            if line.strip())
+        return cryptography.x509.load_pem_x509_certificate(
+            CERTIFICATE,
+            backends.default_backend())
+
     def test_escape_no_escape(self):
         """Tests that Name.escape for string not needing escaping returns the
         input string"""
@@ -113,3 +148,12 @@ class NameTest(unittest.TestCase):
             '<string>CN=#3Ctoken#3E,O=organisation</string>'
             '</object>',
             tostring(serialize(Name(s))))
+
+    def test_create_from_name(self):
+        """Tests that a name can be created from a cryptography.x509.Name"""
+        self.assertEqual(
+            '<object class="javax.security.auth.x500.X500Principal">'
+            '<string>C=XX,ST=Some-State,L=Madeupville,O=Internet Widgits Pty '
+            'Ltd,OU=Loafing dept.</string>'
+            '</object>',
+            tostring(serialize(Name.from_x509_name(self.certificate.subject))))

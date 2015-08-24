@@ -14,6 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
+
+import cryptography.x509
 import re
 
 from ._bean import bean_serializer, value_to_xml
@@ -24,6 +26,22 @@ from ._bean_serializers import bean_class
 class Name(list):
     #: The escapable characters
     ESCAPABLES = ('"', '+', ',', ';', '<', '>')
+
+    #: A mapping from short attribute names to OIDs
+    ATTRIBUTES = {
+        'C': cryptography.x509.OID_COUNTRY_NAME,
+        'O': cryptography.x509.OID_ORGANIZATION_NAME,
+        'OU': cryptography.x509.OID_ORGANIZATIONAL_UNIT_NAME,
+        'ST': cryptography.x509.OID_STATE_OR_PROVINCE_NAME,
+        'CN': cryptography.x509.OID_COMMON_NAME,
+        'L': cryptography.x509.OID_LOCALITY_NAME,
+        'SN': cryptography.x509.OID_SURNAME,
+        'GN': cryptography.x509.OID_GIVEN_NAME}
+
+    #: The reversed mapping from `attr`:ATTRIBUTES
+    REVERSED_ATTRIBUTES = {
+        value: key
+        for key, value in ATTRIBUTES.items()}
 
     SUB_RE = re.compile(r'\#([0-9a-fA-F]{2})')
 
@@ -100,6 +118,16 @@ class Name(list):
         return ','.join(
             '%s=%s' % (k, self.escape(v))
             for (k, v) in self)
+
+    @classmethod
+    def from_x509_name(self, name):
+        """Creates a name from a :class:`cryptography.x509.Name`.
+
+        :param cryptography.x509.Name name: The source name.
+        """
+        return self([
+            (self.REVERSED_ATTRIBUTES[na.oid], na.value)
+            for na in name])
 
 
 @bean_serializer(Name)
