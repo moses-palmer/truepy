@@ -115,7 +115,8 @@ class License(object):
     def issue(self, certificate, key, digest='SHA1', **license_data):
         """Issues a new License.
 
-        :param OpenSSL.crypto.X509 certificate: The issuer certificate.
+        :param certificate: The issuer certificate.
+        :type certificate: bytes or OpenSSL.crypto.X509
 
         :param key: The private key of the certificate.
 
@@ -132,6 +133,8 @@ class License(object):
         :return: a new license
         :rtype: truepy.License
         """
+        certificate = self._certificate(certificate)
+
         if 'license_data' in license_data:
             if len(license_data) != 1:
                 raise ValueError('invalid keyword arguments')
@@ -176,6 +179,8 @@ class License(object):
         :raises truepy.License.InvalidSignatureException: if the signature does
             not match
         """
+        certificate = self._certificate(certificate)
+
         try:
             OpenSSL.crypto.verify(
                 certificate,
@@ -184,6 +189,25 @@ class License(object):
                 self._signature_digest)
         except Exception as e:
             raise self.InvalidSignatureException(e)
+
+    @classmethod
+    def _certificate(self, certificate):
+        """Ensures that a variable is a certificate.
+
+        If ``certificate`` is a parsed certificate, it will be returned
+        unmodified, otherwise it will be treated as a *PEM* blob.
+
+        :param certificate: The certificate to parse.
+
+        :return: a parsed certificate
+        """
+        if isinstance(certificate, OpenSSL.crypto.X509):
+            return certificate
+        else:
+            return OpenSSL.crypto.load_certificate(
+                OpenSSL.crypto.FILETYPE_PEM,
+                certificate)
+
 
     @classmethod
     def _key_iv(self, password, salt=_SALT, iterations=_ITERATIONS,
