@@ -122,7 +122,7 @@ def default_bean_deserialize(self, element):
         pass
 
     result = self()
-    for name, value in properties.iteritems():
+    for name, value in properties.items():
         setattr(result, name, value)
     return result
 
