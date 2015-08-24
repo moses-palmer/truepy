@@ -19,14 +19,20 @@ import base64
 import gzip
 import hashlib
 import io
-import OpenSSL
 import sys
 
+import cryptography.x509
+
 from Crypto.Cipher import DES
+
+from cryptography.hazmat import backends
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import dsa, padding, rsa
 
 from . import LicenseData, fromstring
 from ._bean import deserialize, serialize, to_document
 from ._bean_serializers import bean_class
+from ._name import Name
 
 
 @bean_class('de.schlichtherle.xml.GenericCertificate')
@@ -142,10 +148,8 @@ class License(object):
         else:
             if 'issuer' in license_data:
                 raise ValueError('issuer must not be passed')
-            license_data['issuer'] = ','.join('='.join(
-                    str(part, 'ascii') if sys.version_info.major > 2
-                    else part for part in parts)
-                for parts in certificate.get_subject().get_components())
+            issuer = Name.from_x509_name(certificate.subject)
+            license_data['issuer'] = str(issuer)
             try:
                 license_data = LicenseData(**license_data)
             except TypeError:
@@ -153,41 +157,42 @@ class License(object):
         if not isinstance(license_data, LicenseData):
             raise ValueError('invalid license_data: %s', license_data)
 
-        encoded = to_document(serialize(license_data))
-
-        if key.type() == OpenSSL.crypto.TYPE_RSA:
+        if isinstance(key, rsa.RSAPrivateKey):
             encryption = 'RSA'
-        elif key.type() == OpenSSL.crypto.TYPE_DSA:
+        elif isinstance(key, dsa.DSAPrivateKey):
             encryption = 'DSA'
         else:
             raise ValueError('unknown key type')
 
-        signature = base64.b64encode(OpenSSL.crypto.sign(
-            key,
-            encoded.encode('ascii'),
-            digest)).decode('ascii')
+        encoded = to_document(serialize(license_data))
 
-        signature_algorithm = 'with'.join((digest, encryption))
+        signer = key.signer(
+            padding.PKCS1v15(),
+            getattr(hashes, digest)())
+        signer.update(encoded.encode('ascii'))
+        signature = base64.b64encode(signer.finalize()).decode('ascii')
 
-        return License(encoded, signature, signature_algorithm)
+        return License(encoded, signature, 'with'.join((digest, encryption)))
 
     def verify(self, certificate):
         """Verifies the signature of this certificate against a certificate.
 
-        :param OpenSSL.crypto.X509 certificate: The issuer certificate.
+        :param certificate: The issuer certificate.
+        :type certificate: bytes or cryptography.x509.Certificate
 
         :raises truepy.License.InvalidSignatureException: if the signature does
             not match
         """
         certificate = self._certificate(certificate)
 
+        verifier = certificate.public_key().verifier(
+            base64.b64decode(self.signature),
+            padding.PKCS1v15(),
+            getattr(hashes, self._signature_digest)())
+        verifier.update(self.encoded.encode('ascii'))
         try:
-            OpenSSL.crypto.verify(
-                certificate,
-                base64.b64decode(self.signature),
-                self.encoded.encode('ascii'),
-                self._signature_digest)
-        except Exception as e:
+            verifier.verify()
+        except cryptography.exceptions.InvalidSignature as e:
             raise self.InvalidSignatureException(e)
 
     @classmethod
@@ -201,13 +206,12 @@ class License(object):
 
         :return: a parsed certificate
         """
-        if isinstance(certificate, OpenSSL.crypto.X509):
+        if isinstance(certificate, cryptography.x509.Certificate):
             return certificate
         else:
-            return OpenSSL.crypto.load_certificate(
-                OpenSSL.crypto.FILETYPE_PEM,
-                certificate)
-
+            return cryptography.x509.load_pem_x509_certificate(
+                certificate,
+                backends.default_backend())
 
     @classmethod
     def _key_iv(self, password, salt=_SALT, iterations=_ITERATIONS,

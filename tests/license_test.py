@@ -19,7 +19,9 @@ import unittest
 
 import base64
 import io
-import OpenSSL
+
+from cryptography.hazmat import backends
+from cryptography.hazmat.primitives import serialization
 
 from truepy import LicenseData, License
 from truepy._bean import serialize, to_document
@@ -271,9 +273,10 @@ class LicenseTest(unittest.TestCase):
             -----END ENCRYPTED PRIVATE KEY-----'''.splitlines()
             if line.strip())
         PASSWORD = b'SecretPassword'
-        return OpenSSL.crypto.load_privatekey(
-            OpenSSL.crypto.FILETYPE_PEM,
-            KEY, PASSWORD)
+        return serialization.load_pem_private_key(
+            KEY,
+            password=PASSWORD,
+            backend=backends.default_backend())
 
     @property
     def license(self):
