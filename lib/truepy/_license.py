@@ -122,7 +122,7 @@ class License(object):
         """Issues a new License.
 
         :param certificate: The issuer certificate.
-        :type certificate: bytes or OpenSSL.crypto.X509
+        :type certificate: bytes or cryptography.x509.Certificate
 
         :param key: The private key of the certificate.
 

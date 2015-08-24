@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+2.0.1 - Corrected documentation
+-------------------------------
+*  Changed declared type of parameter to ``License.issue``.
+
 2.0 - No dependency on *OpenSSL*
 --------------------------------
 *  Changed certificate and signature verification routines to use
