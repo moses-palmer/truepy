@@ -14,8 +14,8 @@ PACKAGE_DIR = {
 
 
 REQUIREMENTS = [
-    'pycrypto >=2.6.1',
-    'pyOpenSSL >=0.14']
+    'cryptography >=1.0',
+    'pycrypto >=2.6.1']
 
 
 def setup(**kwargs):
