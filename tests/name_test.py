@@ -103,3 +103,13 @@ class NameTest(unittest.TestCase):
             '<string>CN=#3Ctoken#3E,O=organisation</string>'
             '</object>',
             tostring(serialize(Name(s))))
+
+    def test_create_from_list(self):
+        """Tests that a name can be created from a list"""
+        s = [('CN', '<token>'), ('O', 'organisation')]
+
+        self.assertEqual(
+            '<object class="javax.security.auth.x500.X500Principal">'
+            '<string>CN=#3Ctoken#3E,O=organisation</string>'
+            '</object>',
+            tostring(serialize(Name(s))))

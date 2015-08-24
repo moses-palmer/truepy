@@ -68,25 +68,33 @@ class Name(list):
     def __init__(self, name):
         """A class representing a simplified version of an X500 name.
 
-        The string must be on the form "<type>=<value>[,<type>=<value,...].
+        The string must be on the form
+        ``'<type>=<value>[,<type>=<value,...]'``.
 
-        No escapes for <type> are supported, and only DQUOTE, PLUS, COMMA,
-        SEMI, LANGLE and RANGLE are supported for <value>. Leading and trailing
-        space is stripped for the value.
+        No escapes for ``<type>`` are supported, and only ``DQUOTE``, ``PLUS``,
+        ``COMMA``, ``SEMI``, ``LANGLE`` and ``RANGLE`` are supported for
+        ``<value>``.
 
-        @param name
-            The X509 name string from which to create this Name.
-        @raise ValueError if any part contains an invalid escape sequence, or
-            any part does not contain an '='
+        Leading and trailing space is stripped for the value.
+
+        :param name: The *X.509* name string from which to create this
+            instance. This may also be a list of the tuple ``(type, value)``.
+        :type name: str or list
+
+        :raises ValueError: if any part contains an invalid escape sequence, or
+            any part does not contain an ``'='``
         """
-        try:
-            self.extend(
-                (
-                    kv.split('=')[0].strip(),
-                    self.unescape(kv.split('=')[1].strip()))
-                for kv in name.split(','))
-        except IndexError:
-            raise ValueError('invalid X509 name: %s', name)
+        if isinstance(name, list):
+            self.extend(name)
+        else:
+            try:
+                self.extend(
+                    (
+                        kv.split('=')[0].strip(),
+                        self.unescape(kv.split('=')[1].strip()))
+                    for kv in name.split(','))
+            except IndexError:
+                raise ValueError('invalid X509 name: %s', name)
 
     def __str__(self):
         return ','.join(
