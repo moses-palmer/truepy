@@ -78,8 +78,8 @@ def show(license_file, issuer_certificate, license_file_password, **args):
         if license.data.consumer_type
         else '<none>'))
     print('\tinformation:\t%s' % (
-        '"%s"' % license.data.information
-        if license.data.information
+        '"%s"' % license.data.info
+        if license.data.info
         else '<none>'))
     print('\textra data:\t%s' % (
         '"%s"' % license.data.extra
