@@ -21,6 +21,11 @@ import sys
 
 import OpenSSL
 
+import cryptography.hazmat.primitives.serialization
+import cryptography.x509
+
+from cryptography.hazmat import backends
+
 from . import License, LicenseData
 
 
@@ -143,11 +148,13 @@ class CertificateAction(argparse.Action):
             data = f.read()
         certificate = None
         for file_type in (
-                OpenSSL.crypto.FILETYPE_PEM,
-                OpenSSL.crypto.FILETYPE_ASN1):
+                'pem',
+                'der'):
             try:
-                certificate = OpenSSL.crypto.load_certificate(
-                    file_type, data)
+                loader = getattr(
+                    cryptography.x509,
+                    'load_%s_x509_certificate' % file_type)
+                certificate = loader(data, backends.default_backend())
                 break
             except:
                 pass
