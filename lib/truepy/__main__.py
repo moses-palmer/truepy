@@ -103,17 +103,19 @@ def issue(license_file, license_description, issuer_certificate, issuer_key,
         license_data_parameters = dict(
             (p.strip() for p in i.split('=', 1))
             for i in license_description.split(','))
-    except:
+    except Exception as e:
         raise RuntimeError(
-            'Invalid license data description: %s',
-            license_description)
+            'Invalid license data description (%s): %s',
+            license_description,
+            e)
 
     try:
         license_data = LicenseData(**license_data_parameters)
-    except TypeError:
+    except TypeError as e:
         raise RuntimeError(
-            'Incomplete license data description: %s',
-            license_description)
+            'Incomplete license data description (%s): %s',
+            license_description,
+            e)
 
     license = License.issue(issuer_certificate, issuer_key,
                             license_data=license_data)
