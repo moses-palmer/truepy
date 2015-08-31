@@ -223,6 +223,11 @@ parser.add_argument(
     action=PasswordAction)
 
 parser.add_argument(
+    '--verbose',
+    help='Show a stack trace on error.',
+    action='store_true')
+
+parser.add_argument(
     'action',
     help='The action to perform; this can be any of %s' % ', '.join(
         ACTIONS.keys()),
@@ -236,10 +241,14 @@ parser.add_argument(
     default=[])
 
 try:
-    sys.exit(main(**vars(parser.parse_args())))
+    namespace = parser.parse_args()
+    sys.exit(main(**vars(namespace)))
 except Exception as e:
     try:
         sys.stderr.write('%s\n' % e.args[0] % e.args[1:])
     except:
         sys.stderr.write('%s\n' % str(e))
+    if namespace and namespace.verbose:
+        import traceback
+        traceback.print_exc()
     sys.exit(1)
