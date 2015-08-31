@@ -31,7 +31,7 @@ The main class exported by *truepy* is ``truepy.License``.
   ``truepy.License.load``.
 - To save a license to a file or stream, use the method
   ``truepy.License.store``.
-- To verify the siganture of a license, use the method
+- To verify the signature of a license, use the method
   ``truepy.License.verify``.
 - To read license information, use the ``truepy.License.license_data``
   attribute; this is of the type ``truepy.LicenseData``.
