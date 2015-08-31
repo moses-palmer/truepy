@@ -171,11 +171,13 @@ class KeyAction(PasswordAction):
         with open(value[0], 'rb') as f:
             data = f.read()
         for file_type in (
-                OpenSSL.crypto.FILETYPE_PEM,
-                OpenSSL.crypto.FILETYPE_ASN1):
+                'pem',
+                'der'):
             try:
-                return OpenSSL.crypto.load_privatekey(
-                    file_type, data, password)
+                loader = getattr(
+                    cryptography.hazmat.primitives.serialization,
+                    'load_%s_x509_certificate' % file_type)
+                return loader(data, password, backends.default_backend())
             except:
                 pass
         raise argparse.ArgumentError(
