@@ -56,13 +56,13 @@ def show(license_file, issuer_certificate, license_file_password, **args):
     with open(license_file, 'rb') as f:
         try:
             license = License.load(f, license_file_password)
-        except Exception:
-            raise RuntimeError('Failed to load license file')
+        except Exception as e:
+            raise RuntimeError('Failed to load license file: %s', e)
 
     try:
         license.verify(issuer_certificate)
-    except:
-        raise RuntimeError('Failed to verify license')
+    except Exception as e:
+        raise RuntimeError('Failed to verify license: %s', e)
 
     print('License information')
     print('\tissued by:\t"%s"' % str(license.data.issuer))
