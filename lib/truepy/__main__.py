@@ -19,8 +19,6 @@ import argparse
 import getpass
 import sys
 
-import OpenSSL
-
 import cryptography.hazmat.primitives.serialization
 import cryptography.x509
 
