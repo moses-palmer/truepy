@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+2.0.2 - Corrected handling of DSA keys
+--------------------------------------
+*  Corrected bug in reading of DSA keys.
+*  Updated documentation.
+
+
 2.0.1 - Corrected documentation
 -------------------------------
 *  Changed declared type of parameter to ``License.issue``.
