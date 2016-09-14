@@ -19,7 +19,10 @@ import argparse
 import getpass
 import sys
 
-import OpenSSL
+import cryptography.hazmat.primitives.serialization
+import cryptography.x509
+
+from cryptography.hazmat import backends
 
 from . import License, LicenseData
 
@@ -53,13 +56,13 @@ def show(license_file, issuer_certificate, license_file_password, **args):
     with open(license_file, 'rb') as f:
         try:
             license = License.load(f, license_file_password)
-        except Exception:
-            raise RuntimeError('Failed to load license file')
+        except Exception as e:
+            raise RuntimeError('Failed to load license file: %s', e)
 
     try:
         license.verify(issuer_certificate)
-    except:
-        raise RuntimeError('Failed to verify license')
+    except Exception as e:
+        raise RuntimeError('Failed to verify license: %s', e)
 
     print('License information')
     print('\tissued by:\t"%s"' % str(license.data.issuer))
@@ -75,8 +78,8 @@ def show(license_file, issuer_certificate, license_file_password, **args):
         if license.data.consumer_type
         else '<none>'))
     print('\tinformation:\t%s' % (
-        '"%s"' % license.data.information
-        if license.data.information
+        '"%s"' % license.data.info
+        if license.data.info
         else '<none>'))
     print('\textra data:\t%s' % (
         '"%s"' % license.data.extra
@@ -100,17 +103,19 @@ def issue(license_file, license_description, issuer_certificate, issuer_key,
         license_data_parameters = dict(
             (p.strip() for p in i.split('=', 1))
             for i in license_description.split(','))
-    except:
+    except Exception as e:
         raise RuntimeError(
-            'Invalid license data description: %s',
-            license_description)
+            'Invalid license data description (%s): %s',
+            license_description,
+            e)
 
     try:
         license_data = LicenseData(**license_data_parameters)
-    except TypeError:
+    except TypeError as e:
         raise RuntimeError(
-            'Incomplete license data description: %s',
-            license_description)
+            'Incomplete license data description (%s): %s',
+            license_description,
+            e)
 
     license = License.issue(issuer_certificate, issuer_key,
                             license_data=license_data)
@@ -143,11 +148,13 @@ class CertificateAction(argparse.Action):
             data = f.read()
         certificate = None
         for file_type in (
-                OpenSSL.crypto.FILETYPE_PEM,
-                OpenSSL.crypto.FILETYPE_ASN1):
+                'pem',
+                'der'):
             try:
-                certificate = OpenSSL.crypto.load_certificate(
-                    file_type, data)
+                loader = getattr(
+                    cryptography.x509,
+                    'load_%s_x509_certificate' % file_type)
+                certificate = loader(data, backends.default_backend())
                 break
             except:
                 pass
@@ -164,11 +171,13 @@ class KeyAction(PasswordAction):
         with open(value[0], 'rb') as f:
             data = f.read()
         for file_type in (
-                OpenSSL.crypto.FILETYPE_PEM,
-                OpenSSL.crypto.FILETYPE_ASN1):
+                'pem',
+                'der'):
             try:
-                return OpenSSL.crypto.load_privatekey(
-                    file_type, data, password)
+                loader = getattr(
+                    cryptography.hazmat.primitives.serialization,
+                    'load_%s_x509_certificate' % file_type)
+                return loader(data, password, backends.default_backend())
             except:
                 pass
         raise argparse.ArgumentError(
@@ -214,6 +223,11 @@ parser.add_argument(
     action=PasswordAction)
 
 parser.add_argument(
+    '--verbose',
+    help='Show a stack trace on error.',
+    action='store_true')
+
+parser.add_argument(
     'action',
     help='The action to perform; this can be any of %s' % ', '.join(
         ACTIONS.keys()),
@@ -227,10 +241,14 @@ parser.add_argument(
     default=[])
 
 try:
-    sys.exit(main(**vars(parser.parse_args())))
+    namespace = parser.parse_args()
+    sys.exit(main(**vars(namespace)))
 except Exception as e:
     try:
         sys.stderr.write('%s\n' % e.args[0] % e.args[1:])
     except:
         sys.stderr.write('%s\n' % str(e))
+    if namespace and namespace.verbose:
+        import traceback
+        traceback.print_exc()
     sys.exit(1)
