@@ -5,6 +5,7 @@ Release Notes
 -------------------------------
 *  Changed declared type of parameter to ``License.issue``.
 
+
 2.0 - No dependency on *OpenSSL*
 --------------------------------
 *  Changed certificate and signature verification routines to use
