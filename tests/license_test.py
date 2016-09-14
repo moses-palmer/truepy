@@ -106,15 +106,17 @@ class LicenseTest(unittest.TestCase):
         """Tests that the signature is correctly constructed"""
         # Generated with command below:
         '''
-        python -c 'import tests.suites.license; open("key.pem", "w") \
-            .write(tests.suites.license.KEY);'
-        python -c 'import sys, truepy, tests.suites.license; \
-           sys.stdout.write(truepy._bean.to_document(truepy._bean.serialize( \
-                truepy.LicenseData( \
-                    not_before = "2014-01-01T00:00:00", \
-                    not_after = "2014-01-01T00:00:01"))))' \
-            | openssl sha -sign key.pem -sha1 \
-            | base64
+        python -c 'import tests.license_test; \
+            open("key.pem", "w").write(tests.license_test.KEY)'
+
+        python -c 'import sys, truepy; sys.stdout.write( \
+            truepy._bean.to_document( \
+                truepy._bean.serialize( \
+                    truepy.LicenseData( \
+                        not_before = "2014-01-01T00:00:00", \
+                        not_after = "2014-01-01T00:00:01"))))' \
+        | openssl sha -sign key.pem -sha1 \
+        | base64
         '''
         expected = (
             'BwaJUYJTcY22EiC5x/qZQVMKGeIxAwTiIejRjrch2Q/uVoUrB1ptKRn1ffGgYs5zc'
