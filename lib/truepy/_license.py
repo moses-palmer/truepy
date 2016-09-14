@@ -174,6 +174,28 @@ class License(object):
 
         return License(encoded, signature, 'with'.join((digest, encryption)))
 
+    def _verifier(self, certificate):
+        """Returns a verifier for a certificate.
+
+        This function will attempt different factory methods, since the
+        argument lists differ.
+
+        :param cryptography.x509.Certificate certificate: The signer
+            certificate.
+
+        :return: a verifier
+        """
+        public_key = certificate.public_key()
+        try:
+            return public_key.verifier(
+                base64.b64decode(self.signature),
+                padding.PKCS1v15(),
+                getattr(hashes, self._signature_digest)())
+        except TypeError:
+            return public_key.verifier(
+                base64.b64decode(self.signature),
+                getattr(hashes, self._signature_digest)())
+
     def verify(self, certificate):
         """Verifies the signature of this certificate against a certificate.
 
@@ -185,10 +207,7 @@ class License(object):
         """
         certificate = self._certificate(certificate)
 
-        verifier = certificate.public_key().verifier(
-            base64.b64decode(self.signature),
-            padding.PKCS1v15(),
-            getattr(hashes, self._signature_digest)())
+        verifier = self._verifier(certificate)
         verifier.update(self.encoded.encode('ascii'))
         try:
             verifier.verify()
