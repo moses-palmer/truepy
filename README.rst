@@ -103,14 +103,14 @@ The code below shows the minimum steps required::
 
 
     # Load the certificate
-    with open('certificate.pem', 'r') as f:
+    with open('certificate.pem', 'rb') as f:
         certificate = f.read()
 
     # Load the private key
-    with open('key.pem', 'b') as f:
+    with open('key.pem', 'rb') as f:
         key = serialization.load_pem_private_key(
             f.read(),
-            password='MySecretPassword',
+            password=b'MySecretPassword',
             backend=backends.default_backend())
 
     # Issue the license
@@ -141,7 +141,7 @@ shows the minimum steps required::
 
 
     # Load the certificate
-    with open('certificate.pem', 'r') as f:
+    with open('certificate.pem', 'rb') as f:
         certificate = f.read()
 
     # Load the license
