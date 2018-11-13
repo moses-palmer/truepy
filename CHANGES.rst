@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+2.0.3 - Updated documentation
+-----------------------------
+*  Updated documentation to be compatible with *Python 3*.
+
+
 2.0.2 - Corrected handling of DSA keys
 --------------------------------------
 *  Corrected bug in reading of DSA keys.
