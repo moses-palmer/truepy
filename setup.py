@@ -15,7 +15,7 @@ PACKAGE_DIR = {
 
 REQUIREMENTS = [
     'cryptography >=1.0',
-    'pycrypto >=2.6.1']
+    'pycryptodome >=3.9.4']
 
 
 def setup(**kwargs):
