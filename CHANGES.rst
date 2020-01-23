@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+2.0.4 - Updated crypto libary
+-----------------------------
+*  Replaced _pycrypto_ with _pycryptodome_ libary. Thanks to _samuelchen_!
+
+
 2.0.3 - Updated documentation
 -----------------------------
 *  Updated documentation to be compatible with *Python 3*.
